@@ -9,7 +9,7 @@ let grayscaleLayout;
 let grayscaleBindGroup;
 
 let sobelPipeline;
-let sobelLayoutl
+let sobelLayout;
 let sobelBindGroup;
 
 const canvas = document.getElementById('canvas');
@@ -41,18 +41,21 @@ async function setupGPUDevice() {
     tempCanvas.width = img.width;
     tempCanvas.height = img.height;
 
-    outputTexture = tempCanvas.getContext("webgpu");
-    outputTexture.configure({
+    const canvasContex = tempCanvas.getContext("webgpu");
+    canvasContex.configure({
         device,
         format: "rgba8unorm",
         usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_SRC
     });
+    outputTexture = canvasContex.getCurrentTexture();
 
     inputTexture = device.createTexture({
         size: {width: canvas.width, height: canvas.height},
         format: "rgba8unorm",
         usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
     });
+
+    device.queue.copyExternalImageToTexture({source: img}, {texture: inputTexture}, [img.width, img.height]);
 
     grayscaleLayout = device.createBindGroupLayout({
         label: "Grayscale layout",
@@ -68,8 +71,6 @@ async function setupGPUDevice() {
             }
         ]
     });
-    device.queue.copyExternalImageToTexture({source: img}, {texture: inputTexture}, [img.width, img.height]);
-
     let grayscaleCode = await loadWGSLShader("grayscale.wgsl")
     const grayscaleModule = device.createShaderModule({
         label: "Grayscale module",
@@ -93,9 +94,52 @@ async function setupGPUDevice() {
         layout: grayscaleLayout,
         entries: [
             { binding: 0, resource: inputTexture.createView() },
-            { binding: 1, resource: outputTexture.getCurrentTexture().createView() }
+            { binding: 1, resource: outputTexture.createView() }
         ]
     });
+
+    sobelLayout = device.createBindGroupLayout({
+        label: "Sobel layout",
+        entries: [
+            {
+                binding: 0,
+                visibility: GPUShaderStage.COMPUTE,
+                storageTexture: { format: "rgba8unorm", access: "read-only" }
+            }, {
+                binding: 1,
+                visibility: GPUShaderStage.COMPUTE,
+                storageTexture: { format: "rgba8unorm" }
+            }
+        ]
+    });
+    let sobelCode = await loadWGSLShader("sobel.wgsl")
+    const sobelModule = device.createShaderModule({
+        label: "Sobel module",
+        code: sobelCode
+    });
+    const sobelPipelineLayout = device.createPipelineLayout({
+        label: "Sobel pipeline layout",
+        bindGroupLayouts: [
+            sobelLayout
+        ]
+    });
+    sobelPipeline = device.createComputePipeline({
+        label: "Sobel pipeline",
+        layout: sobelPipelineLayout,
+        compute: {
+            module: sobelModule
+        }
+    });
+    sobelBindGroup = device.createBindGroup({
+        label: "Sobel bind group",
+        layout: sobelLayout,
+        entries: [
+            { binding: 0, resource: inputTexture.createView() },
+            { binding: 1, resource: outputTexture.createView() }
+        ]
+    });
+
+
 }
 
 async function processImage() {
@@ -110,6 +154,16 @@ async function processImage() {
     pass.dispatchWorkgroups(Math.ceil(canvas.width / 8), Math.ceil(canvas.width / 8));
 
     pass.end();
+
+    encoder.copyTextureToTexture({texture: outputTexture}, {texture: inputTexture}, {width: canvas.width, height: canvas.height});
+
+    const sobelPass = encoder.beginComputePass({ label: "sobel pass" });
+
+    sobelPass.setPipeline(sobelPipeline);
+    sobelPass.setBindGroup(0, sobelBindGroup);
+    sobelPass.dispatchWorkgroups(Math.ceil(canvas.width / 8), Math.ceil(canvas.width / 8));
+
+    sobelPass.end();
 
     const commandBuffer = encoder.finish();
     device.queue.submit([commandBuffer]);
