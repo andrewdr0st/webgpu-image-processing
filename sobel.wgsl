@@ -20,12 +20,12 @@ const sobel_y = mat3x3f(1, 0, -1, 2, 0, -2, 1, 0, -1);
         for (y = -1; y <= 1; y++) {
             let p = vec2i(clamp(id.x + x, 0, max_x - 1), clamp(id.y + y, 0, max_y - 1));
             let c = textureLoad(img_in, p);
-            sx += c * sobel_x[x + 1][y + 1];
-            sy += c * sobel_y[x + 1][y + 1];
+            sx += (c * sobel_x[x + 1][y + 1]).r;
+            sy += (c * sobel_y[x + 1][y + 1]).r;
         }
     }
 
     let out = sqrt(sx * sx + sy * sy);
 
-    textureStore(img_out, id.xy, out);
+    textureStore(img_out, id.xy, vec4f(out, out, out, 1));
 }
