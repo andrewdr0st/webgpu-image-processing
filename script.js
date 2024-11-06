@@ -3,6 +3,7 @@ let device;
 
 let inputTexture;
 let outputTexture;
+let originalTexture;
 
 let grayscalePipeline;
 let grayscaleLayout;
@@ -55,7 +56,14 @@ async function setupGPUDevice() {
         usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
     });
 
+    originalTexture = device.createTexture({
+        size: {width: canvas.width, height: canvas.height},
+        format: "rgba8unorm",
+        usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
+    });
+
     device.queue.copyExternalImageToTexture({source: img}, {texture: inputTexture}, [img.width, img.height]);
+    device.queue.copyExternalImageToTexture({source: img}, {texture: originalTexture}, [img.width, img.height]);
 
     grayscaleLayout = device.createBindGroupLayout({
         label: "Grayscale layout",
@@ -109,6 +117,10 @@ async function setupGPUDevice() {
                 binding: 1,
                 visibility: GPUShaderStage.COMPUTE,
                 storageTexture: { format: "rgba8unorm" }
+            }, {
+                binding: 2,
+                visibility: GPUShaderStage.COMPUTE,
+                storageTexture: { format: "rgba8unorm", access: "read-only" }
             }
         ]
     });
@@ -135,7 +147,8 @@ async function setupGPUDevice() {
         layout: sobelLayout,
         entries: [
             { binding: 0, resource: inputTexture.createView() },
-            { binding: 1, resource: outputTexture.createView() }
+            { binding: 1, resource: outputTexture.createView() },
+            { binding: 2, resource: originalTexture.createView() }
         ]
     });
 
