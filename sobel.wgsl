@@ -3,7 +3,7 @@ const sobel_y = mat3x3f(1, 0, -1, 2, 0, -2, 1, 0, -1);
 
 @group(0) @binding(0) var img_in: texture_storage_2d<rgba8unorm, read>;
 @group(0) @binding(1) var img_out: texture_storage_2d<rgba8unorm, write>;
-@group(0) @binding(2) var img_orig: texture_storage_2d<rgba8unorm, read>;
+//@group(0) @binding(2) var img_orig: texture_storage_2d<rgba8unorm, read>;
 
 @compute @workgroup_size(8, 8, 1) fn sobel(@builtin(global_invocation_id) id: vec3u) {
     let max_x = i32(textureDimensions(img_in).x);
@@ -32,14 +32,14 @@ const sobel_y = mat3x3f(1, 0, -1, 2, 0, -2, 1, 0, -1);
 
     //let finalc = vec4f(1.0, 0.25, 0.25, 1.0) * out + vec4f(0.0, 0.0, 0.5, 1.0) * (1 - out);
 
-    /*
+    
     let a = f32(ix) / f32(max_x);
     let gradientc = vec4f(0.25, 1.0, 0.5, 1.0) * a + vec4f(0.25, 0.5, 1.0, 1.0) * (1 - a);
     let finalc = gradientc * out + vec4f(0.2, 0.0, 0.0, 1.0) * (1 - out);
-    */
+    
 
-    let origc = textureLoad(img_orig, id.xy);
-    let finalc = origc * (1 - out) + vec4f(0.25, 0.0, 0.0, 1.0) * out;
+    //let origc = textureLoad(img_orig, id.xy);
+    //let finalc = origc * (1 - out) + vec4f(0.25, 0.0, 0.0, 1.0) * out;
 
     textureStore(img_out, id.xy, finalc);
 }

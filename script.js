@@ -4,18 +4,19 @@ let device;
 let inputTexture;
 let outputTexture;
 let originalTexture;
+let compTexture1;
+let compTexture2;
+
+let processLayout;
+
+let compBG1;
+let compBG2;
 
 let grayscalePipeline;
-let grayscaleLayout;
-let grayscaleBindGroup;
-
 let sobelPipeline;
-let sobelLayout;
-let sobelBindGroup;
 
 const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const tempCanvas = document.createElement('canvas');
+const ctx = canvas.getContext('webgpu');
 
 async function loadWGSLShader(path) {
     let response = await fetch(path);
@@ -39,34 +40,28 @@ async function setupGPUDevice() {
     let img = await loadImage("squirrel.jpg");
     canvas.width = img.width;
     canvas.height = img.height;
-    tempCanvas.width = img.width;
-    tempCanvas.height = img.height;
 
-    const canvasContex = tempCanvas.getContext("webgpu");
-    canvasContex.configure({
+    ctx.configure({
         device,
         format: "rgba8unorm",
-        usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_SRC
+        usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.COPY_SRC
     });
-    outputTexture = canvasContex.getCurrentTexture();
+    outputTexture = ctx.getCurrentTexture();
 
-    inputTexture = device.createTexture({
+    compTexture1 = device.createTexture({
         size: {width: canvas.width, height: canvas.height},
         format: "rgba8unorm",
         usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
     });
 
-    originalTexture = device.createTexture({
+    compTexture2 = device.createTexture({
         size: {width: canvas.width, height: canvas.height},
         format: "rgba8unorm",
         usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
     });
 
-    device.queue.copyExternalImageToTexture({source: img}, {texture: inputTexture}, [img.width, img.height]);
-    device.queue.copyExternalImageToTexture({source: img}, {texture: originalTexture}, [img.width, img.height]);
-
-    grayscaleLayout = device.createBindGroupLayout({
-        label: "Grayscale layout",
+    processLayout = device.createBindGroupLayout({
+        label: this.name + " layout",
         entries: [
             {
                 binding: 0,
@@ -79,80 +74,30 @@ async function setupGPUDevice() {
             }
         ]
     });
-    let grayscaleCode = await loadWGSLShader("grayscale.wgsl")
-    const grayscaleModule = device.createShaderModule({
-        label: "Grayscale module",
-        code: grayscaleCode
-    });
-    const grayscalePipelineLayout = device.createPipelineLayout({
-        label: "Grayscale pipeline layout",
-        bindGroupLayouts: [
-            grayscaleLayout
+
+    compBG1 = device.createBindGroup({
+        label: "1 -> 2 bind group",
+        layout: processLayout,
+        entries: [
+            { binding: 0, resource: compTexture1.createView() },
+            { binding: 1, resource: compTexture2.createView() }
         ]
     });
-    grayscalePipeline = device.createComputePipeline({
-        label: "Grayscale pipeline",
-        layout: grayscalePipelineLayout,
-        compute: {
-            module: grayscaleModule
-        }
-    });
-    grayscaleBindGroup = device.createBindGroup({
-        label: "Grayscale bind group",
-        layout: grayscaleLayout,
+    compBG2 = device.createBindGroup({
+        label: "1 -> 2 bind group",
+        layout: processLayout,
         entries: [
-            { binding: 0, resource: inputTexture.createView() },
-            { binding: 1, resource: outputTexture.createView() }
+            { binding: 0, resource: compTexture2.createView() },
+            { binding: 1, resource: compTexture1.createView() }
         ]
     });
 
-    sobelLayout = device.createBindGroupLayout({
-        label: "Sobel layout",
-        entries: [
-            {
-                binding: 0,
-                visibility: GPUShaderStage.COMPUTE,
-                storageTexture: { format: "rgba8unorm", access: "read-only" }
-            }, {
-                binding: 1,
-                visibility: GPUShaderStage.COMPUTE,
-                storageTexture: { format: "rgba8unorm" }
-            }, {
-                binding: 2,
-                visibility: GPUShaderStage.COMPUTE,
-                storageTexture: { format: "rgba8unorm", access: "read-only" }
-            }
-        ]
-    });
-    let sobelCode = await loadWGSLShader("sobel.wgsl")
-    const sobelModule = device.createShaderModule({
-        label: "Sobel module",
-        code: sobelCode
-    });
-    const sobelPipelineLayout = device.createPipelineLayout({
-        label: "Sobel pipeline layout",
-        bindGroupLayouts: [
-            sobelLayout
-        ]
-    });
-    sobelPipeline = device.createComputePipeline({
-        label: "Sobel pipeline",
-        layout: sobelPipelineLayout,
-        compute: {
-            module: sobelModule
-        }
-    });
-    sobelBindGroup = device.createBindGroup({
-        label: "Sobel bind group",
-        layout: sobelLayout,
-        entries: [
-            { binding: 0, resource: inputTexture.createView() },
-            { binding: 1, resource: outputTexture.createView() },
-            { binding: 2, resource: originalTexture.createView() }
-        ]
-    });
+    device.queue.copyExternalImageToTexture({source: img}, {texture: compTexture1}, [img.width, img.height]);
 
-
+    grayscalePipeline = new EffectPipeline("grayscale");
+    sobelPipeline = new EffectPipeline("sobel");
+    await grayscalePipeline.buildPipeline();
+    await sobelPipeline.buildPipeline();
 }
 
 async function processImage() {
@@ -160,28 +105,14 @@ async function processImage() {
 
     const encoder = device.createCommandEncoder({ label: "processing encoder" });
 
-    const pass = encoder.beginComputePass({ label: "grayscale pass" });
+    grayscalePipeline.run(encoder, compBG1);
 
-    pass.setPipeline(grayscalePipeline);
-    pass.setBindGroup(0, grayscaleBindGroup);
-    pass.dispatchWorkgroups(Math.ceil(canvas.width / 8), Math.ceil(canvas.width / 8));
-
-    pass.end();
-
-    encoder.copyTextureToTexture({texture: outputTexture}, {texture: inputTexture}, {width: canvas.width, height: canvas.height});
-
-    const sobelPass = encoder.beginComputePass({ label: "sobel pass" });
-
-    sobelPass.setPipeline(sobelPipeline);
-    sobelPass.setBindGroup(0, sobelBindGroup);
-    sobelPass.dispatchWorkgroups(Math.ceil(canvas.width / 8), Math.ceil(canvas.width / 8));
-
-    sobelPass.end();
+    sobelPipeline.run(encoder, compBG2);
+    
+    encoder.copyTextureToTexture({texture: compTexture1}, {texture: outputTexture}, {width: canvas.width, height: canvas.height});
 
     const commandBuffer = encoder.finish();
     device.queue.submit([commandBuffer]);
-
-    ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
 }
 
 processImage();
