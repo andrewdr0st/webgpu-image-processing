@@ -7,6 +7,7 @@ let compTexture2;
 let outputTexture;
 
 let processLayout;
+let valueLayout;
 
 let compBG1;
 let compBG2;
@@ -18,7 +19,7 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('webgpu');
 
 async function loadWGSLShader(path) {
-    let response = await fetch(path);
+    let response = await fetch("shaders/" + path);
     return await response.text();
 }
 
@@ -60,16 +61,16 @@ async function setupGPUDevice() {
     });
 
     processLayout = device.createBindGroupLayout({
-        label: this.name + " layout",
+        label: "process layout",
         entries: [
             {
                 binding: 0,
                 visibility: GPUShaderStage.COMPUTE,
-                storageTexture: { format: "rgba8unorm", access: "read-only" }
+                storageTexture: {format: "rgba8unorm", access: "read-only"}
             }, {
                 binding: 1,
                 visibility: GPUShaderStage.COMPUTE,
-                storageTexture: { format: "rgba8unorm" }
+                storageTexture: {format: "rgba8unorm"}
             }
         ]
     });
@@ -91,6 +92,17 @@ async function setupGPUDevice() {
         ]
     });
 
+    valueLayout = device.createBindGroupLayout({
+        label: "value layout",
+        entries: [
+            {
+                binding: 0,
+                visibility: GPUShaderStage.COMPUTE,
+                buffer: {type: "uniform"}
+            }
+        ]
+    });
+
     device.queue.copyExternalImageToTexture({source: img}, {texture: compTexture1}, [img.width, img.height]);
 
     linearPipeline = new EffectPipeline("tolinear");
@@ -98,13 +110,17 @@ async function setupGPUDevice() {
     grayscalePipeline = new EffectPipeline("grayscale");
     sobelPipeline = new EffectPipeline("sobel");
     brightnessPipeline = new EffectPipeline("brightness");
+    contrastPipeline = new EffectPipeline("contrast", 1);
     await Promise.all([
         linearPipeline.buildPipeline(),
         srgbPipeline.buildPipeline(),
         grayscalePipeline.buildPipeline(),
         sobelPipeline.buildPipeline(),
-        brightnessPipeline.buildPipeline()
+        brightnessPipeline.buildPipeline(),
+        contrastPipeline.buildPipeline()
     ]);
+    brightnessPipeline.setValues(0.1, 0.3);
+    contrastPipeline.setValues(1.2, 0.1, 0.5);
 }
 
 async function processImage() {
@@ -113,6 +129,7 @@ async function processImage() {
     const encoder = device.createCommandEncoder({ label: "processing encoder" });
 
     linearPipeline.run(encoder, getBindGroup());
+    contrastPipeline.run(encoder, getBindGroup());
     brightnessPipeline.run(encoder, getBindGroup());
     srgbPipeline.run(encoder, getBindGroup());
 
