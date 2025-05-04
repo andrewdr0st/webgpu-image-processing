@@ -111,16 +111,25 @@ async function setupGPUDevice() {
     sobelPipeline = new EffectPipeline("sobel");
     brightnessPipeline = new EffectPipeline("brightness");
     contrastPipeline = new EffectPipeline("contrast", 1);
+    exposurePipeline = new EffectPipeline("exposure");
+    saturationPipeline = new EffectPipeline("saturation", 1);
+    temperaturePipeline = new EffectPipeline("temperature");
     await Promise.all([
         linearPipeline.buildPipeline(),
         srgbPipeline.buildPipeline(),
         grayscalePipeline.buildPipeline(),
         sobelPipeline.buildPipeline(),
         brightnessPipeline.buildPipeline(),
-        contrastPipeline.buildPipeline()
+        contrastPipeline.buildPipeline(),
+        exposurePipeline.buildPipeline(),
+        saturationPipeline.buildPipeline(),
+        temperaturePipeline.buildPipeline()
     ]);
-    brightnessPipeline.setValues(0.1, 0.3);
-    contrastPipeline.setValues(1.2, 0.1, 0.5);
+    brightnessPipeline.setValues(-0.1);
+    contrastPipeline.setValues(1.2);
+    exposurePipeline.setValues(1);
+    saturationPipeline.setValues(1.5);
+    temperaturePipeline.setValues(0, -0.3, -0.2);
 }
 
 async function processImage() {
@@ -129,8 +138,9 @@ async function processImage() {
     const encoder = device.createCommandEncoder({ label: "processing encoder" });
 
     linearPipeline.run(encoder, getBindGroup());
+    temperaturePipeline.run(encoder, getBindGroup());
+    saturationPipeline.run(encoder, getBindGroup());
     contrastPipeline.run(encoder, getBindGroup());
-    brightnessPipeline.run(encoder, getBindGroup());
     srgbPipeline.run(encoder, getBindGroup());
 
     let fTex = curBG1 ? compTexture2 : compTexture1;
