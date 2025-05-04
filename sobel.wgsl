@@ -34,8 +34,8 @@ const sobel_y = mat3x3f(1, 0, -1, 2, 0, -2, 1, 0, -1);
 
     
     let a = f32(ix) / f32(max_x);
-    let gradientc = vec4f(0.25, 1.0, 0.5, 1.0) * a + vec4f(0.25, 0.5, 1.0, 1.0) * (1 - a);
-    let finalc = gradientc * out + vec4f(0.2, 0.0, 0.0, 1.0) * (1 - out);
+    let gradientc = vec4f(0.15, 1.0, 0.5, 1.0) * a + vec4f(0.15, 0.5, 1.0, 1.0) * (1 - a);
+    let finalc = gradientc * out + vec4f(0.05, 0.0, 0.0, 1.0) * (1 - out);
     
 
     //let origc = textureLoad(img_orig, id.xy);

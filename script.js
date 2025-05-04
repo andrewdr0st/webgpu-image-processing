@@ -1,11 +1,10 @@
 let adapter;
 let device;
 
-let inputTexture;
-let outputTexture;
 let originalTexture;
 let compTexture1;
 let compTexture2;
+let outputTexture;
 
 let processLayout;
 
@@ -94,10 +93,18 @@ async function setupGPUDevice() {
 
     device.queue.copyExternalImageToTexture({source: img}, {texture: compTexture1}, [img.width, img.height]);
 
+    linearPipeline = new EffectPipeline("tolinear");
+    srgbPipeline = new EffectPipeline("tosrgb");
     grayscalePipeline = new EffectPipeline("grayscale");
     sobelPipeline = new EffectPipeline("sobel");
-    await grayscalePipeline.buildPipeline();
-    await sobelPipeline.buildPipeline();
+    brightnessPipeline = new EffectPipeline("brightness");
+    await Promise.all([
+        linearPipeline.buildPipeline(),
+        srgbPipeline.buildPipeline(),
+        grayscalePipeline.buildPipeline(),
+        sobelPipeline.buildPipeline(),
+        brightnessPipeline.buildPipeline()
+    ]);
 }
 
 async function processImage() {
@@ -105,14 +112,21 @@ async function processImage() {
 
     const encoder = device.createCommandEncoder({ label: "processing encoder" });
 
-    grayscalePipeline.run(encoder, compBG1);
+    linearPipeline.run(encoder, getBindGroup());
+    brightnessPipeline.run(encoder, getBindGroup());
+    srgbPipeline.run(encoder, getBindGroup());
 
-    sobelPipeline.run(encoder, compBG2);
-    
-    encoder.copyTextureToTexture({texture: compTexture1}, {texture: outputTexture}, {width: canvas.width, height: canvas.height});
+    let fTex = curBG1 ? compTexture2 : compTexture1;
+    encoder.copyTextureToTexture({texture: fTex}, {texture: outputTexture}, {width: canvas.width, height: canvas.height});
 
     const commandBuffer = encoder.finish();
     device.queue.submit([commandBuffer]);
+}
+
+let curBG1 = false;
+function getBindGroup() {
+    curBG1 = !curBG1;
+    return curBG1 ? compBG1 : compBG2;
 }
 
 processImage();

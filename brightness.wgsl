@@ -1,7 +1,3 @@
-const R = 0.2126;
-const G = 0.7152;
-const B = 0.0722;
-
 @group(0) @binding(0) var img_in: texture_storage_2d<rgba8unorm, read>;
 @group(0) @binding(1) var img_out: texture_storage_2d<rgba8unorm, write>;
 
@@ -12,8 +8,7 @@ const B = 0.0722;
         return;
     }
 
-    let c = textureLoad(img_in, id.xy);
-    let v = c.r * R + c.g * G + c.b * B;
-
-    textureStore(img_out, id.xy, vec4f(v, v, v, 1));
+    let in = textureLoad(img_in, id.xy);
+    let out = clamp(in.rgb + 0.1, vec3f(0.0), vec3f(1.0));
+    textureStore(img_out, id.xy, vec4f(out, in.a));
 }
