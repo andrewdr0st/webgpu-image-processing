@@ -1,10 +1,11 @@
 let adapter;
 let device;
 
+let img;
+
 let originalTexture;
 let compTexture1;
 let compTexture2;
-let outputTexture;
 
 let processLayout;
 let valueLayout;
@@ -37,7 +38,7 @@ async function setupGPUDevice() {
         return false;
     }
 
-    let img = await loadImage("squirrel.jpg");
+    img = await loadImage("squirrel.jpg");
     canvas.width = img.width;
     canvas.height = img.height;
 
@@ -46,7 +47,6 @@ async function setupGPUDevice() {
         format: "rgba8unorm",
         usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.COPY_SRC
     });
-    outputTexture = ctx.getCurrentTexture();
 
     compTexture1 = device.createTexture({
         size: {width: canvas.width, height: canvas.height},
@@ -134,6 +134,8 @@ async function setupGPUDevice() {
 
 async function processImage() {
     await setupGPUDevice();
+
+    const outputTexture = ctx.getCurrentTexture();
 
     const encoder = device.createCommandEncoder({ label: "processing encoder" });
 
