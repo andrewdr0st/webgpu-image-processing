@@ -101,11 +101,11 @@ async function setupGPUDevice() {
     temperaturePipeline.setValues(0, -0.3, -0.2);
 
     effectList.push(linearPipeline);
-    effectList.push(temperaturePipeline);
-    effectList.push(saturationPipeline);
-    effectList.push(contrastPipeline);
-    //effectList.push(grayscalePipeline);
-    //effectList.push(sobelPipeline);
+    //effectList.push(temperaturePipeline);
+    //effectList.push(saturationPipeline);
+    //effectList.push(contrastPipeline);
+    effectList.push(grayscalePipeline);
+    effectList.push(sobelPipeline);
     effectList.push(srgbPipeline);
 }
 
