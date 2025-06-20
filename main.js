@@ -13,11 +13,11 @@ let valueLayout;
 let compBG1;
 let compBG2;
 
-let grayscalePipeline;
-let sobelPipeline;
+const effectList = [];
 
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('webgpu');
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("webgpu");
+const importButton = document.getElementById("importImage");
 
 async function loadWGSLShader(path) {
     let response = await fetch("shaders/" + path);
@@ -34,30 +34,14 @@ async function setupGPUDevice() {
     adapter = await navigator.gpu?.requestAdapter();
     device = await adapter?.requestDevice();
     if (!device) {
-        alert('need a browser that supports WebGPU');
+        alert("need a browser that supports WebGPU");
         return false;
     }
-
-    img = await loadImage("squirrel.jpg");
-    canvas.width = img.width;
-    canvas.height = img.height;
 
     ctx.configure({
         device,
         format: "rgba8unorm",
         usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.COPY_SRC
-    });
-
-    compTexture1 = device.createTexture({
-        size: {width: canvas.width, height: canvas.height},
-        format: "rgba8unorm",
-        usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
-    });
-
-    compTexture2 = device.createTexture({
-        size: {width: canvas.width, height: canvas.height},
-        format: "rgba8unorm",
-        usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
     });
 
     processLayout = device.createBindGroupLayout({
@@ -75,23 +59,6 @@ async function setupGPUDevice() {
         ]
     });
 
-    compBG1 = device.createBindGroup({
-        label: "1 -> 2 bind group",
-        layout: processLayout,
-        entries: [
-            { binding: 0, resource: compTexture1.createView() },
-            { binding: 1, resource: compTexture2.createView() }
-        ]
-    });
-    compBG2 = device.createBindGroup({
-        label: "1 -> 2 bind group",
-        layout: processLayout,
-        entries: [
-            { binding: 0, resource: compTexture2.createView() },
-            { binding: 1, resource: compTexture1.createView() }
-        ]
-    });
-
     valueLayout = device.createBindGroupLayout({
         label: "value layout",
         entries: [
@@ -103,17 +70,19 @@ async function setupGPUDevice() {
         ]
     });
 
-    device.queue.copyExternalImageToTexture({source: img}, {texture: compTexture1}, [img.width, img.height]);
+    img = await loadImage("squirrel.jpg");
 
-    linearPipeline = new EffectPipeline("tolinear");
-    srgbPipeline = new EffectPipeline("tosrgb");
-    grayscalePipeline = new EffectPipeline("grayscale");
-    sobelPipeline = new EffectPipeline("sobel");
-    brightnessPipeline = new EffectPipeline("brightness");
-    contrastPipeline = new EffectPipeline("contrast", 1);
-    exposurePipeline = new EffectPipeline("exposure");
-    saturationPipeline = new EffectPipeline("saturation", 1);
-    temperaturePipeline = new EffectPipeline("temperature");
+    createImgTextures();
+
+    const linearPipeline = new EffectPipeline("tolinear");
+    const srgbPipeline = new EffectPipeline("tosrgb");
+    const grayscalePipeline = new EffectPipeline("grayscale");
+    const sobelPipeline = new EffectPipeline("sobel");
+    const brightnessPipeline = new EffectPipeline("brightness");
+    const contrastPipeline = new EffectPipeline("contrast", 1);
+    const exposurePipeline = new EffectPipeline("exposure");
+    const saturationPipeline = new EffectPipeline("saturation", 1);
+    const temperaturePipeline = new EffectPipeline("temperature");
     await Promise.all([
         linearPipeline.buildPipeline(),
         srgbPipeline.buildPipeline(),
@@ -130,20 +99,25 @@ async function setupGPUDevice() {
     exposurePipeline.setValues(1);
     saturationPipeline.setValues(1.5);
     temperaturePipeline.setValues(0, -0.3, -0.2);
+
+    effectList.push(linearPipeline);
+    effectList.push(temperaturePipeline);
+    effectList.push(saturationPipeline);
+    effectList.push(contrastPipeline);
+    //effectList.push(grayscalePipeline);
+    //effectList.push(sobelPipeline);
+    effectList.push(srgbPipeline);
 }
 
-async function processImage() {
-    await setupGPUDevice();
-
+function processImage() {
     const outputTexture = ctx.getCurrentTexture();
+    curBG1 = false;
 
-    const encoder = device.createCommandEncoder({ label: "processing encoder" });
+    const encoder = device.createCommandEncoder({ label: "Processing encoder" });
 
-    linearPipeline.run(encoder, getBindGroup());
-    temperaturePipeline.run(encoder, getBindGroup());
-    saturationPipeline.run(encoder, getBindGroup());
-    contrastPipeline.run(encoder, getBindGroup());
-    srgbPipeline.run(encoder, getBindGroup());
+    for (let i = 0; i < effectList.length; i++) {
+        effectList[i].run(encoder, getBindGroup());
+    }
 
     let fTex = curBG1 ? compTexture2 : compTexture1;
     encoder.copyTextureToTexture({texture: fTex}, {texture: outputTexture}, {width: canvas.width, height: canvas.height});
@@ -158,4 +132,56 @@ function getBindGroup() {
     return curBG1 ? compBG1 : compBG2;
 }
 
-processImage();
+function createImgTextures() {
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    compTexture1 = device.createTexture({
+        size: {width: canvas.width, height: canvas.height},
+        format: "rgba8unorm",
+        usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
+    });
+
+    compTexture2 = device.createTexture({
+        size: {width: canvas.width, height: canvas.height},
+        format: "rgba8unorm",
+        usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
+    });
+
+    compBG1 = device.createBindGroup({
+        label: "1 -> 2 bind group",
+        layout: processLayout,
+        entries: [
+            { binding: 0, resource: compTexture1.createView() },
+            { binding: 1, resource: compTexture2.createView() }
+        ]
+    });
+    compBG2 = device.createBindGroup({
+        label: "2 -> 1 bind group",
+        layout: processLayout,
+        entries: [
+            { binding: 0, resource: compTexture2.createView() },
+            { binding: 1, resource: compTexture1.createView() }
+        ]
+    });
+
+    device.queue.copyExternalImageToTexture({source: img}, {texture: compTexture1}, [img.width, img.height]);
+}
+
+async function importImage(event) {
+    const imgFile = event.target.files[0];
+    if (!imgFile) return;
+    console.log(imgFile.name);
+    img = await createImageBitmap(imgFile);
+    createImgTextures();
+    processImage();
+}
+
+async function init() {
+    await setupGPUDevice();
+    processImage();
+}
+
+init();
+
+importButton.addEventListener("change", importImage);

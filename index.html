@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Stuff</title>
+    <title>Image Processing</title>
     <link href="style.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
+    
+    <input type="file" id="importImage" accept="image/*"/>
+    <label for="importImage" class="import-button">Import</label>
+
     <canvas id="canvas"></canvas>
 
     <script src="effectPipeline.js"></script>

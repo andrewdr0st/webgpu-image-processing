@@ -10,3 +10,19 @@ canvas {
     left:50%;
     transform:translate(-50%, -50%);
 }
+
+#importImage {
+    display: none;
+}
+
+.import-button {
+    display: inline-block;
+    padding: 20px 20px;
+    margin: 5px;
+    background-color: #20A0F0;
+    color: white;
+    font-size: 20px;
+    border: none;
+    border-radius: 4px;
+}
+
