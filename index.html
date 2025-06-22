@@ -8,10 +8,19 @@
 </head>
 <body>
     
-    <input type="file" id="importImage" accept="image/*"/>
-    <label for="importImage" class="import-button">Import</label>
+    <div class="container">
+        <div class="left-container">
+            <canvas id="canvas"></canvas>
+            <div class="button-row">
+                <input type="file" id="importImage" accept="image/*"/>
+                <label for="importImage" class="import-button">Import</label>
+            </div>
+        </div>
 
-    <canvas id="canvas"></canvas>
+        <div class="effect-list">
+            
+        </div>
+    </div>
 
     <script src="effectPipeline.js"></script>
     <script src="main.js"></script>

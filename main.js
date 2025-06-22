@@ -83,6 +83,7 @@ async function setupGPUDevice() {
     const exposurePipeline = new EffectPipeline("exposure");
     const saturationPipeline = new EffectPipeline("saturation", 1);
     const temperaturePipeline = new EffectPipeline("temperature");
+    const blurPipeline = new EffectPipeline("blur");
     await Promise.all([
         linearPipeline.buildPipeline(),
         srgbPipeline.buildPipeline(),
@@ -92,7 +93,8 @@ async function setupGPUDevice() {
         contrastPipeline.buildPipeline(),
         exposurePipeline.buildPipeline(),
         saturationPipeline.buildPipeline(),
-        temperaturePipeline.buildPipeline()
+        temperaturePipeline.buildPipeline(),
+        blurPipeline.buildPipeline()
     ]);
     brightnessPipeline.setValues(-0.1);
     contrastPipeline.setValues(1.2);
@@ -101,11 +103,13 @@ async function setupGPUDevice() {
     temperaturePipeline.setValues(0, -0.3, -0.2);
 
     effectList.push(linearPipeline);
-    //effectList.push(temperaturePipeline);
-    //effectList.push(saturationPipeline);
-    //effectList.push(contrastPipeline);
-    effectList.push(grayscalePipeline);
-    effectList.push(sobelPipeline);
+    effectList.push(temperaturePipeline);
+    effectList.push(saturationPipeline);
+    effectList.push(contrastPipeline);
+    //effectList.push(blurPipeline);
+    //effectList.push(grayscalePipeline);
+    //effectList.push(sobelPipeline);
+    effectList.push(blurPipeline);
     effectList.push(srgbPipeline);
 }
 
