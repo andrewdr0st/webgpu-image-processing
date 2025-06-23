@@ -15,9 +15,22 @@ let compBG2;
 
 const effectList = [];
 
-const canvas = document.getElementById("canvas");
+const canvas = document.getElementById("processCanvas");
 const ctx = canvas.getContext("webgpu");
+const display = document.getElementById("displayCanvas");
+const displayContainer = document.getElementById("displayContainer");
+const displayCtx = display.getContext("2d");
 const importButton = document.getElementById("importImage");
+
+function copyImageToDisplay() {
+    const wRatio = displayContainer.clientWidth / canvas.width;
+    const hRatio = displayContainer.clientHeight / canvas.height;
+    const minRatio = Math.min(wRatio, hRatio);
+    display.width = Math.floor(canvas.width * minRatio);
+    display.height = Math.floor(canvas.height * minRatio);
+    displayCtx.clearRect(0, 0, display.width, display.height);
+    displayCtx.drawImage(canvas, 0, 0, display.width, display.height);
+}
 
 async function loadWGSLShader(path) {
     let response = await fetch("shaders/" + path);
@@ -128,6 +141,8 @@ function processImage() {
 
     const commandBuffer = encoder.finish();
     device.queue.submit([commandBuffer]);
+
+    copyImageToDisplay();
 }
 
 let curBG1 = false;

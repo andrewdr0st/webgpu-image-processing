@@ -7,10 +7,12 @@
     <link href="style.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
-    
+
     <div class="container">
         <div class="left-container">
-            <canvas id="canvas"></canvas>
+            <div id="displayContainer">
+                <canvas id="displayCanvas"></canvas>
+            </div>
             <div class="button-row">
                 <input type="file" id="importImage" accept="image/*"/>
                 <label for="importImage" class="import-button">Import</label>
@@ -21,6 +23,8 @@
             
         </div>
     </div>
+
+    <canvas id="processCanvas"></canvas>
 
     <script src="effectPipeline.js"></script>
     <script src="main.js"></script>
