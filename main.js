@@ -25,7 +25,7 @@ const importButton = document.getElementById("importImage");
 function copyImageToDisplay() {
     const wRatio = displayContainer.clientWidth / canvas.width;
     const hRatio = displayContainer.clientHeight / canvas.height;
-    const minRatio = Math.min(wRatio, hRatio);
+    const minRatio = Math.min(wRatio, hRatio, 3);
     display.width = Math.floor(canvas.width * minRatio);
     display.height = Math.floor(canvas.height * minRatio);
     displayCtx.clearRect(0, 0, display.width, display.height);
@@ -97,6 +97,7 @@ async function setupGPUDevice() {
     const saturationPipeline = new EffectPipeline("saturation", 1);
     const temperaturePipeline = new EffectPipeline("temperature");
     const blurPipeline = new EffectPipeline("blur");
+    const tintPipeline = new EffectPipeline("tint", 1);
     await Promise.all([
         linearPipeline.buildPipeline(),
         srgbPipeline.buildPipeline(),
@@ -107,22 +108,25 @@ async function setupGPUDevice() {
         exposurePipeline.buildPipeline(),
         saturationPipeline.buildPipeline(),
         temperaturePipeline.buildPipeline(),
-        blurPipeline.buildPipeline()
+        blurPipeline.buildPipeline(),
+        tintPipeline.buildPipeline()
     ]);
     brightnessPipeline.setValues(-0.1);
     contrastPipeline.setValues(1.2);
     exposurePipeline.setValues(1);
     saturationPipeline.setValues(1.5);
     temperaturePipeline.setValues(0, -0.3, -0.2);
+    tintPipeline.setColor(0.9, 0.1, 0.35);
 
     effectList.push(linearPipeline);
-    effectList.push(temperaturePipeline);
-    effectList.push(saturationPipeline);
-    effectList.push(contrastPipeline);
-    //effectList.push(blurPipeline);
-    //effectList.push(grayscalePipeline);
-    //effectList.push(sobelPipeline);
+    //effectList.push(temperaturePipeline);
+    //effectList.push(saturationPipeline);
+    //effectList.push(contrastPipeline);
     effectList.push(blurPipeline);
+    effectList.push(grayscalePipeline);
+    effectList.push(sobelPipeline);
+    //effectList.push(blurPipeline);
+    effectList.push(tintPipeline);
     effectList.push(srgbPipeline);
 }
 

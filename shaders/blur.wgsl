@@ -29,7 +29,7 @@ struct valueStruct {
         }
     }
 
-    totalc *= 0.11111f;
+    totalc *= 0.11111;
 
     textureStore(img_out, id.xy, totalc);
 }

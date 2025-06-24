@@ -14,6 +14,7 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: #050910;
 }
 
 .container {
@@ -33,9 +34,32 @@ html, body {
     background-color: #2a2d31;
 }
 
-.effect-list {
+.effect-header {
+    background-color: #2a2d31;
+    color: white;
+    font-size: 24px;
+    width: 100%;
+    padding: 12px 0px;
+    text-align: center;
+}
+
+.right-container {
     flex: 1;
     background-color: #474c53;
+}
+
+.effect-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.effect-box {
+    width: 95%;
+    padding: 25px 0px;
+    margin-top: 10px;
+    background-color: #9db5c4;
+    border-radius: 2px;
 }
 
 #importImage {
