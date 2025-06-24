@@ -48,7 +48,7 @@ html, body {
     background-color: #474c53;
 }
 
-.effect-list {
+#effectList {
     display: flex;
     flex-direction: column;
     align-items: center;

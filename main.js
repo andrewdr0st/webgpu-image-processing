@@ -14,6 +14,8 @@ let compBG1;
 let compBG2;
 
 const effectList = [];
+const linearPipeline = new EffectPipeline("tolinear");
+const srgbPipeline = new EffectPipeline("tosrgb");
 
 const canvas = document.getElementById("processCanvas");
 const ctx = canvas.getContext("webgpu");
@@ -21,16 +23,7 @@ const display = document.getElementById("displayCanvas");
 const displayContainer = document.getElementById("displayContainer");
 const displayCtx = display.getContext("2d");
 const importButton = document.getElementById("importImage");
-
-function copyImageToDisplay() {
-    const wRatio = displayContainer.clientWidth / canvas.width;
-    const hRatio = displayContainer.clientHeight / canvas.height;
-    const minRatio = Math.min(wRatio, hRatio, 3);
-    display.width = Math.floor(canvas.width * minRatio);
-    display.height = Math.floor(canvas.height * minRatio);
-    displayCtx.clearRect(0, 0, display.width, display.height);
-    displayCtx.drawImage(canvas, 0, 0, display.width, display.height);
-}
+const effectListContainer = document.getElementById("effectList");
 
 async function loadWGSLShader(path) {
     let response = await fetch("shaders/" + path);
@@ -87,8 +80,6 @@ async function setupGPUDevice() {
 
     createImgTextures();
 
-    const linearPipeline = new EffectPipeline("tolinear");
-    const srgbPipeline = new EffectPipeline("tosrgb");
     const grayscalePipeline = new EffectPipeline("grayscale");
     const sobelPipeline = new EffectPipeline("sobel");
     const brightnessPipeline = new EffectPipeline("brightness");
@@ -118,16 +109,15 @@ async function setupGPUDevice() {
     temperaturePipeline.setValues(0, -0.3, -0.2);
     tintPipeline.setColor(0.9, 0.1, 0.35);
 
-    effectList.push(linearPipeline);
     //effectList.push(temperaturePipeline);
     //effectList.push(saturationPipeline);
     //effectList.push(contrastPipeline);
-    effectList.push(blurPipeline);
-    effectList.push(grayscalePipeline);
-    effectList.push(sobelPipeline);
+    //effectList.push(blurPipeline);
+    //effectList.push(grayscalePipeline);
+    //effectList.push(sobelPipeline);
     //effectList.push(blurPipeline);
     effectList.push(tintPipeline);
-    effectList.push(srgbPipeline);
+    effectList.push(brightnessPipeline);
 }
 
 function processImage() {
@@ -136,9 +126,13 @@ function processImage() {
 
     const encoder = device.createCommandEncoder({ label: "Processing encoder" });
 
+    linearPipeline.run(encoder, getBindGroup());
+
     for (let i = 0; i < effectList.length; i++) {
         effectList[i].run(encoder, getBindGroup());
     }
+
+    srgbPipeline.run(encoder, getBindGroup());
 
     let fTex = curBG1 ? compTexture2 : compTexture1;
     encoder.copyTextureToTexture({texture: fTex}, {texture: outputTexture}, {width: canvas.width, height: canvas.height});
@@ -200,11 +194,36 @@ async function importImage(event) {
     processImage();
 }
 
+function copyImageToDisplay() {
+    const wRatio = displayContainer.clientWidth / canvas.width;
+    const hRatio = displayContainer.clientHeight / canvas.height;
+    const minRatio = Math.min(wRatio, hRatio, 3);
+    display.width = Math.floor(canvas.width * minRatio);
+    display.height = Math.floor(canvas.height * minRatio);
+    displayCtx.clearRect(0, 0, display.width, display.height);
+    displayCtx.drawImage(canvas, 0, 0, display.width, display.height);
+}
+
+function createEffectBoxes() {
+    for (let i = 0; i < effectList.length; i++) {
+        const div = document.createElement("div");
+        div.className = "effect-box";
+        div.textContent = effectList[i].name;
+        div.dataset.id = i;
+        effectListContainer.appendChild(div);
+    }
+}
+
 async function init() {
     await setupGPUDevice();
+    createEffectBoxes();
     processImage();
 }
 
 init();
 
 importButton.addEventListener("change", importImage);
+
+effectListContainer.addEventListener("click", e => {
+    console.log(e.target.dataset.id);
+});
