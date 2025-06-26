@@ -78,11 +78,31 @@ html, body {
 }
 
 .value-slider {
+    appearance: none;
     margin-left: 10px;
+    width: 50%;
+    height: 8px;
+    border-radius: 4px;
+    background-color: #f1f1f1;
+}
+
+.slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 12px;
+    background-color: #20A0F0;
+    cursor: pointer;
 }
 
 .value-number {
     margin-left: 10px;
+    width: 10%
+}
+
+.value-number::-webkit-outer-spin-button, .value-number::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
 }
 
 #importImage {

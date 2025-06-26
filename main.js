@@ -214,6 +214,8 @@ init();
 
 importButton.addEventListener("change", importImage);
 
+/*
 effectListContainer.addEventListener("click", e => {
     console.log(e.target.dataset.id);
 });
+*/
