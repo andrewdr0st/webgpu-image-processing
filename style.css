@@ -56,10 +56,33 @@ html, body {
 
 .effect-box {
     width: 95%;
-    padding: 25px 0px;
     margin-top: 10px;
     background-color: #9db5c4;
-    border-radius: 2px;
+    border-radius: 3px;
+    display: flex;
+    flex-direction: column;
+}
+
+.effect-box-row {
+    padding-left: 5%;
+    margin-bottom: 5px;
+}
+
+.effect-box-title {
+    padding-top: 5px;
+    padding-bottom: 3px;
+    font-size: 18px;
+    background-color: #829dad;
+    border-top-right-radius: 3px;
+    border-top-left-radius: 3px;
+}
+
+.value-slider {
+    margin-left: 10px;
+}
+
+.value-number {
+    margin-left: 10px;
 }
 
 #importImage {

@@ -23,13 +23,19 @@
             <div class="effect-header">
                 Effects
             </div>
-            <div id="effectList"></div>
+            <div id="effectList">
+                <div class="effect-box">
+                    <div class="effect-box-row effect-box-title">Contrast</div>
+                    <div class="effect-box-row">Strength<input type="range" class="value-slider"><input type="number" class="value-number"></div>
+                </div>
+            </div>
         </div>
     </div>
 
     <canvas id="processCanvas"></canvas>
 
     <script src="effectPipeline.js"></script>
+    <script src="ui.js"></script>
     <script src="main.js"></script>
 </body>
 </html>

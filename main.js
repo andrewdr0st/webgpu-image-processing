@@ -197,21 +197,11 @@ async function importImage(event) {
 function copyImageToDisplay() {
     const wRatio = displayContainer.clientWidth / canvas.width;
     const hRatio = displayContainer.clientHeight / canvas.height;
-    const minRatio = Math.min(wRatio, hRatio, 3);
+    const minRatio = Math.min(wRatio, hRatio, 1);
     display.width = Math.floor(canvas.width * minRatio);
     display.height = Math.floor(canvas.height * minRatio);
     displayCtx.clearRect(0, 0, display.width, display.height);
     displayCtx.drawImage(canvas, 0, 0, display.width, display.height);
-}
-
-function createEffectBoxes() {
-    for (let i = 0; i < effectList.length; i++) {
-        const div = document.createElement("div");
-        div.className = "effect-box";
-        div.textContent = effectList[i].name;
-        div.dataset.id = i;
-        effectListContainer.appendChild(div);
-    }
 }
 
 async function init() {
