@@ -10,6 +10,7 @@ let compTexture2;
 let processLayout;
 let valueLayout;
 
+let initBG;
 let compBG1;
 let compBG2;
 
@@ -121,12 +122,13 @@ async function setupGPUDevice() {
 }
 
 function processImage() {
+    console.log("proc");
     const outputTexture = ctx.getCurrentTexture();
     curBG1 = false;
 
     const encoder = device.createCommandEncoder({ label: "Processing encoder" });
 
-    linearPipeline.run(encoder, getBindGroup());
+    linearPipeline.run(encoder, initBG);
 
     for (let i = 0; i < effectList.length; i++) {
         effectList[i].run(encoder, getBindGroup());
@@ -153,6 +155,12 @@ function createImgTextures() {
     canvas.width = img.width;
     canvas.height = img.height;
 
+    originalTexture = device.createTexture({
+        size: {width: canvas.width, height: canvas.height},
+        format: "rgba8unorm",
+        usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
+    });
+
     compTexture1 = device.createTexture({
         size: {width: canvas.width, height: canvas.height},
         format: "rgba8unorm",
@@ -165,6 +173,14 @@ function createImgTextures() {
         usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
     });
 
+    initBG = device.createBindGroup({
+        label: "original -> 1 bind group",
+        layout: processLayout,
+        entries: [
+            { binding: 0, resource: originalTexture.createView() },
+            { binding: 1, resource: compTexture1.createView() }
+        ]
+    });
     compBG1 = device.createBindGroup({
         label: "1 -> 2 bind group",
         layout: processLayout,
@@ -182,7 +198,7 @@ function createImgTextures() {
         ]
     });
 
-    device.queue.copyExternalImageToTexture({source: img}, {texture: compTexture1}, [img.width, img.height]);
+    device.queue.copyExternalImageToTexture({source: img}, {texture: originalTexture}, [img.width, img.height]);
 }
 
 async function importImage(event) {

@@ -4,7 +4,8 @@ function createEffectBoxes() {
         div.className = "effect-box";
         div.dataset.id = i;
         div.appendChild(createEffectBoxTitle(effectList[i].name));
-        div.appendChild(createEffectBoxValue("Strength", 0, 1, 0.01));
+        div.appendChild(createEffectBoxValue("Strength", 0, 1, 0.01, i));
+        div.appendChild(createEffectBoxColor(i));
         effectListContainer.appendChild(div);
     }
 }
@@ -16,7 +17,7 @@ function createEffectBoxTitle(effectName) {
     return div;
 }
 
-function createEffectBoxValue(text, minVal, maxVal, stepAmount) {
+function createEffectBoxValue(text, minVal, maxVal, stepAmount, id) {
     const div = document.createElement("div");
     div.className = "effect-box-row";
     div.textContent = text;
@@ -33,11 +34,37 @@ function createEffectBoxValue(text, minVal, maxVal, stepAmount) {
     numberInput.className = "value-number";
     slider.oninput = () => {
         numberInput.value = slider.value;
+        effectList[id].setValues(slider.value);
+        processImage();
     }
     numberInput.oninput = () => {
         slider.value = numberInput.value;
     }
     div.appendChild(slider);
     div.appendChild(numberInput);
+    return div;
+}
+
+function createEffectBoxColor(id) {
+    const div = document.createElement("div");
+    div.className = "effect-box-row";
+    div.textContent = "Color";
+    const colorPicker = document.createElement("label");
+    colorPicker.className = "color-picker";
+    const colorInput = document.createElement("input");
+    colorInput.type = "color";
+    colorInput.className = "color-input";
+    colorInput.oninput = () => {
+        const c = colorInput.value;
+        colorPicker.style.backgroundColor = c;
+        const r = parseInt(c.substring(1, 3), 16) / 255;
+        const g = parseInt(c.substring(3, 5), 16) / 255;
+        const b = parseInt(c.substring(5, 7), 16) / 255;
+        effectList[id].setColor(r, g, b);
+        processImage();
+    }
+    colorPicker.appendChild(colorInput);
+    colorPicker.appendChild(document.createTextNode("color picker"));
+    div.appendChild(colorPicker);
     return div;
 }
