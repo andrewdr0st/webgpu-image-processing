@@ -1,0 +1,84 @@
+[
+    {
+        "name": "Brightness",
+        "shader": "brightness",
+        "useValue": true,
+        "defaultValue": 0,
+        "minValue": -1,
+        "maxValue": 1,
+        "stepAmount": 0.01,
+        "useColor": false
+    },
+    {
+        "name": "Contrast",
+        "shader": "contrast",
+        "useValue": true,
+        "defaultValue": 1,
+        "minValue": 0,
+        "maxValue": 2,
+        "stepAmount": 0.01,
+        "useColor": false
+    },
+    {
+        "name": "Saturation",
+        "shader": "saturation",
+        "useValue": true,
+        "defaultValue": 1,
+        "minValue": 0,
+        "maxValue": 5,
+        "stepAmount": 0.01,
+        "useColor": false
+    },
+    {
+        "name": "Temperature",
+        "shader": "temperature",
+        "useValue": true,
+        "defaultValue": 0,
+        "minValue": -1,
+        "maxValue": 1,
+        "stepAmount": 0.01,
+        "useColor": false
+    },
+    {
+        "name": "Exposure",
+        "shader": "exposure",
+        "useValue": true,
+        "defaultValue": 0,
+        "minValue": -4,
+        "maxValue": 4,
+        "stepAmount": 0.01,
+        "useColor": false
+    },
+    {
+        "name": "Tint",
+        "shader": "tint",
+        "useValue": true,
+        "defaultValue": 1,
+        "minValue": 0,
+        "maxValue": 1,
+        "stepAmount": 0.01,
+        "useColor": true
+    },
+    {
+        "name": "Grayscale",
+        "shader": "grayscale",
+        "useValue": false,
+        "useColor": false
+    },
+    {
+        "name": "Edge Detection (Sobel)",
+        "shader": "sobel",
+        "useValue": false,
+        "useColor": false
+    },
+    {
+        "name": "Blur",
+        "shader": "blur",
+        "useValue": true,
+        "defaultValue": 1,
+        "minValue": 0,
+        "maxValue": 10,
+        "stepAmount": 1,
+        "useColor": false
+    }
+]
