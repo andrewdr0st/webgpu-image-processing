@@ -2,7 +2,6 @@ html, body {
     margin: 0;
     padding: 0;
     height: 100%;
-    background:black;
 }
 
 #processCanvas {
@@ -114,7 +113,7 @@ html, body {
 
 .color-picker {
     margin-left: 25px;
-    background-color: black;
+    background-color: white;
     color: transparent;
     border: 1px solid black;
     user-select: none;

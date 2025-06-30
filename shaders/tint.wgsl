@@ -23,7 +23,7 @@ struct valueStruct {
     let amount = values.amount + dx + dy;
 
     let in = textureLoad(img_in, id.xy);
-    let tintc = in.rgb * values.color * amount;
+    let tintc = in.rgb * values.color;
     let out = mix(in.rgb, tintc, amount);
     textureStore(img_out, id.xy, vec4f(out, in.a));
 }

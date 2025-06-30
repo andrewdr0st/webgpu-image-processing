@@ -37,6 +37,11 @@ async function loadImage(path) {
     return await createImageBitmap(blob);
 }
 
+async function loadJSON(path) {
+    const response = await fetch(path);
+    return response.json();
+}
+
 async function setupGPUDevice() {
     adapter = await navigator.gpu?.requestAdapter();
     device = await adapter?.requestDevice();
@@ -81,6 +86,9 @@ async function setupGPUDevice() {
 
     createImgTextures();
 
+    const a = await loadJSON("effects.json");
+    console.log(a);
+
     const grayscalePipeline = new EffectPipeline("grayscale");
     const sobelPipeline = new EffectPipeline("sobel");
     const brightnessPipeline = new EffectPipeline("brightness");
@@ -103,26 +111,12 @@ async function setupGPUDevice() {
         blurPipeline.buildPipeline(),
         tintPipeline.buildPipeline()
     ]);
-    brightnessPipeline.setValues(-0.1);
-    contrastPipeline.setValues(1.2);
-    exposurePipeline.setValues(1);
-    saturationPipeline.setValues(1.5);
-    temperaturePipeline.setValues(0, -0.3, -0.2);
-    tintPipeline.setColor(0.9, 0.1, 0.35);
 
-    //effectList.push(temperaturePipeline);
-    //effectList.push(saturationPipeline);
-    //effectList.push(contrastPipeline);
-    //effectList.push(blurPipeline);
-    //effectList.push(grayscalePipeline);
-    //effectList.push(sobelPipeline);
-    //effectList.push(blurPipeline);
     effectList.push(tintPipeline);
     effectList.push(brightnessPipeline);
 }
 
 function processImage() {
-    console.log("proc");
     const outputTexture = ctx.getCurrentTexture();
     curBG1 = false;
 

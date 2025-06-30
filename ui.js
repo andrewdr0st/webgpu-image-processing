@@ -10,6 +10,19 @@ function createEffectBoxes() {
     }
 }
 
+function createEffectBox(effect) {
+    const div = document.createElement("div");
+    div.className = "effect-box";
+    div.appendChild(createEffectBoxTitle(effect.name));
+    if (effect.useValue) {
+        div.appendChild(createEffectBoxValue(0, "Strength", effect.defaultValue, effect.minValue, effect.maxValue, effect.stepAmount));
+    }
+    if (effect.useColor) {
+        div.appendChild(createEffectBoxColor(0));
+    }
+    effectListContainer.appendChild(div);
+}
+
 function createEffectBoxTitle(effectName) {
     const div = document.createElement("div");
     div.classList.add("effect-box-row", "effect-box-title");
@@ -17,18 +30,20 @@ function createEffectBoxTitle(effectName) {
     return div;
 }
 
-function createEffectBoxValue(text, minVal, maxVal, stepAmount, id) {
+function createEffectBoxValue(id, text, defaultVal, minVal, maxVal, stepAmount) {
     const div = document.createElement("div");
     div.className = "effect-box-row";
     div.textContent = text;
     const slider = document.createElement("input");
     slider.type = "range";
+    slider.value = defaultVal;
     slider.min = minVal;
     slider.max = maxVal;
     slider.step = stepAmount;
     slider.className = "value-slider";
     const numberInput = document.createElement("input");
     numberInput.type = "number";
+    numberInput.value = defaultVal;
     numberInput.min = minVal;
     numberInput.max = maxVal;
     numberInput.className = "value-number";
