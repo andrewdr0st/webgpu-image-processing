@@ -49,7 +49,7 @@ function createEffectBoxValue(id, text, defaultVal, minVal, maxVal, stepAmount) 
     numberInput.className = "value-number";
     slider.oninput = () => {
         numberInput.value = slider.value;
-        effectList[id].setValues(slider.value);
+        effectList[id].buffer.setValues(slider.value);
         processImage();
     }
     numberInput.oninput = () => {
@@ -75,7 +75,7 @@ function createEffectBoxColor(id) {
         const r = parseInt(c.substring(1, 3), 16) / 255;
         const g = parseInt(c.substring(3, 5), 16) / 255;
         const b = parseInt(c.substring(5, 7), 16) / 255;
-        effectList[id].setColor(r, g, b);
+        effectList[id].buffer.setColor(r, g, b);
         processImage();
     }
     colorPicker.appendChild(colorInput);

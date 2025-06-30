@@ -15,8 +15,9 @@ let compBG1;
 let compBG2;
 
 const effectList = [];
-const linearPipeline = new EffectPipeline("tolinear");
-const srgbPipeline = new EffectPipeline("tosrgb");
+const pipelineList = [];
+const linearPipeline = new EffectPipeline("tolinear", false);
+const srgbPipeline = new EffectPipeline("tosrgb", false);
 
 const canvas = document.getElementById("processCanvas");
 const ctx = canvas.getContext("webgpu");
@@ -86,34 +87,23 @@ async function setupGPUDevice() {
 
     createImgTextures();
 
-    const a = await loadJSON("effects.json");
-    console.log(a);
+    const allEffects = await loadJSON("effects.json");
+    const pipelinePromises = [linearPipeline.buildPipeline(), srgbPipeline.buildPipeline()];
 
-    const grayscalePipeline = new EffectPipeline("grayscale");
-    const sobelPipeline = new EffectPipeline("sobel");
-    const brightnessPipeline = new EffectPipeline("brightness");
-    const contrastPipeline = new EffectPipeline("contrast", 1);
-    const exposurePipeline = new EffectPipeline("exposure");
-    const saturationPipeline = new EffectPipeline("saturation", 1);
-    const temperaturePipeline = new EffectPipeline("temperature");
-    const blurPipeline = new EffectPipeline("blur");
-    const tintPipeline = new EffectPipeline("tint", 1);
-    await Promise.all([
-        linearPipeline.buildPipeline(),
-        srgbPipeline.buildPipeline(),
-        grayscalePipeline.buildPipeline(),
-        sobelPipeline.buildPipeline(),
-        brightnessPipeline.buildPipeline(),
-        contrastPipeline.buildPipeline(),
-        exposurePipeline.buildPipeline(),
-        saturationPipeline.buildPipeline(),
-        temperaturePipeline.buildPipeline(),
-        blurPipeline.buildPipeline(),
-        tintPipeline.buildPipeline()
-    ]);
+    for (let i = 0; i < allEffects.length; i++) {
+        const effect = allEffects[i];
+        const pipeline = new EffectPipeline(effect.shader);
+        effect.pipeline = pipeline;
+        pipelinePromises.push(pipeline.buildPipeline());
+    }
 
-    effectList.push(tintPipeline);
-    effectList.push(brightnessPipeline);
+    await Promise.all(pipelinePromises);
+
+    allEffects[0].buffer = new EffectBuffer();
+    allEffects[0].buffer.setupBuffer();
+    effectList.push(allEffects[0]);
+
+    return true;
 }
 
 function processImage() {
@@ -125,7 +115,9 @@ function processImage() {
     linearPipeline.run(encoder, initBG);
 
     for (let i = 0; i < effectList.length; i++) {
-        effectList[i].run(encoder, getBindGroup());
+        const effect = effectList[i];
+        effect.buffer.writeValues();
+        effect.pipeline.run(encoder, getBindGroup(), effect.buffer.bindGroup);
     }
 
     srgbPipeline.run(encoder, getBindGroup());
@@ -198,7 +190,6 @@ function createImgTextures() {
 async function importImage(event) {
     const imgFile = event.target.files[0];
     if (!imgFile) return;
-    console.log(imgFile.name);
     img = await createImageBitmap(imgFile);
     createImgTextures();
     processImage();
@@ -215,9 +206,14 @@ function copyImageToDisplay() {
 }
 
 async function init() {
-    await setupGPUDevice();
-    createEffectBoxes();
-    processImage();
+    const supportsWebGPU = await setupGPUDevice();
+    if (supportsWebGPU) {
+        //createEffectBoxes();
+        for (let i = 0; i < effectList.length; i++) {
+            createEffectBox(effectList[i]);
+        }
+        processImage();
+    }
 }
 
 init();

@@ -7,15 +7,17 @@ class EffectBuffer {
 
     setupBuffer() {
         this.buffer = device.createBuffer({
-                size: 32,
-                usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-            });
+            size: 32,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+        });
         this.bindGroup = device.createBindGroup({
             layout: valueLayout,
-            entries: [
-                {binding: 0, resource: {buffer: this.buffer}}
-            ]
+            entries: [{binding: 0, resource: {buffer: this.buffer}}]
         });
+    }
+
+    writeValues() {
+        device.queue.writeBuffer(this.buffer, 0, this.values);
     }
 
     setValues(amount, dx=0.0, dy=0.0) {

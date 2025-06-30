@@ -1,7 +1,8 @@
 class EffectPipeline {
-    constructor(name) {
+    constructor(name, useValues = true) {
         this.name = name;
         this.pipeline;
+        this.useValues = useValues;
     }
 
     async buildPipeline() {
@@ -11,27 +12,23 @@ class EffectPipeline {
                 code: shader
             });
             const pipelineLayout = device.createPipelineLayout({
-                bindGroupLayouts: [
-                    processLayout,
-                    valueLayout
-                ]
+                bindGroupLayouts: this.useValues ? [processLayout, valueLayout] : [processLayout]
             });
             this.pipeline = device.createComputePipeline({
                 layout: this.name + " pipeline",
                 layout: pipelineLayout,
-                compute: {
-                    module: module
-                }
+                compute: {module: module}
             });
         });
     }
 
     run(encoder, textureBindGroup, valuesBindGroup) {
-        device.queue.writeBuffer(this.buffer, 0, this.values);
         const pass = encoder.beginComputePass({ label: this.name + " pass" });
         pass.setPipeline(this.pipeline);
         pass.setBindGroup(0, textureBindGroup);
-        pass.setBindGroup(1, valuesBindGroup);
+        if (this.useValues) {
+            pass.setBindGroup(1, valuesBindGroup);
+        }
         pass.dispatchWorkgroups(Math.ceil(canvas.width / 8), Math.ceil(canvas.height / 8));
         pass.end();
     }
