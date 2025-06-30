@@ -14,6 +14,7 @@ let initBG;
 let compBG1;
 let compBG2;
 
+let allEffects;
 const effectList = [];
 const pipelineList = [];
 const linearPipeline = new EffectPipeline("tolinear", false);
@@ -87,7 +88,7 @@ async function setupGPUDevice() {
 
     createImgTextures();
 
-    const allEffects = await loadJSON("effects.json");
+    allEffects = await loadJSON("effects.json");
     const pipelinePromises = [linearPipeline.buildPipeline(), srgbPipeline.buildPipeline()];
 
     for (let i = 0; i < allEffects.length; i++) {
@@ -99,9 +100,10 @@ async function setupGPUDevice() {
 
     await Promise.all(pipelinePromises);
 
-    allEffects[0].buffer = new EffectBuffer();
-    allEffects[0].buffer.setupBuffer();
-    effectList.push(allEffects[0]);
+    addEffect(0);
+    addEffect(6);
+    addEffect(7);
+    addEffect(5);
 
     return true;
 }
@@ -205,10 +207,21 @@ function copyImageToDisplay() {
     displayCtx.drawImage(canvas, 0, 0, display.width, display.height);
 }
 
+function addEffect(id) {
+    const effect = {...allEffects[id]};
+    effect.buffer = new EffectBuffer();
+    if (effect.useValues) {
+        effect.buffer.setValues(effect.defaultValue);
+    }
+    if (effect.useColor) {
+        effect.buffer.setColor(1, 1, 1);
+    }
+    effectList.push(effect);
+}
+
 async function init() {
     const supportsWebGPU = await setupGPUDevice();
     if (supportsWebGPU) {
-        //createEffectBoxes();
         for (let i = 0; i < effectList.length; i++) {
             createEffectBox(effectList[i]);
         }

@@ -1,24 +1,12 @@
-function createEffectBoxes() {
-    for (let i = 0; i < effectList.length; i++) {
-        const div = document.createElement("div");
-        div.className = "effect-box";
-        div.dataset.id = i;
-        div.appendChild(createEffectBoxTitle(effectList[i].name));
-        div.appendChild(createEffectBoxValue("Strength", 0, 1, 0.01, i));
-        div.appendChild(createEffectBoxColor(i));
-        effectListContainer.appendChild(div);
-    }
-}
-
 function createEffectBox(effect) {
     const div = document.createElement("div");
     div.className = "effect-box";
     div.appendChild(createEffectBoxTitle(effect.name));
     if (effect.useValue) {
-        div.appendChild(createEffectBoxValue(0, "Strength", effect.defaultValue, effect.minValue, effect.maxValue, effect.stepAmount));
+        div.appendChild(createEffectBoxValue(effect, "Strength", effect.defaultValue, effect.minValue, effect.maxValue, effect.stepAmount));
     }
     if (effect.useColor) {
-        div.appendChild(createEffectBoxColor(0));
+        div.appendChild(createEffectBoxColor(effect));
     }
     effectListContainer.appendChild(div);
 }
@@ -30,7 +18,7 @@ function createEffectBoxTitle(effectName) {
     return div;
 }
 
-function createEffectBoxValue(id, text, defaultVal, minVal, maxVal, stepAmount) {
+function createEffectBoxValue(effect, text, defaultVal, minVal, maxVal, stepAmount) {
     const div = document.createElement("div");
     div.className = "effect-box-row";
     div.textContent = text;
@@ -49,7 +37,7 @@ function createEffectBoxValue(id, text, defaultVal, minVal, maxVal, stepAmount) 
     numberInput.className = "value-number";
     slider.oninput = () => {
         numberInput.value = slider.value;
-        effectList[id].buffer.setValues(slider.value);
+        effect.buffer.setValues(slider.value);
         processImage();
     }
     numberInput.oninput = () => {
@@ -60,7 +48,7 @@ function createEffectBoxValue(id, text, defaultVal, minVal, maxVal, stepAmount) 
     return div;
 }
 
-function createEffectBoxColor(id) {
+function createEffectBoxColor(effect) {
     const div = document.createElement("div");
     div.className = "effect-box-row";
     div.textContent = "Color";
@@ -69,13 +57,14 @@ function createEffectBoxColor(id) {
     const colorInput = document.createElement("input");
     colorInput.type = "color";
     colorInput.className = "color-input";
+    colorInput.value = "#FFFFFF"
     colorInput.oninput = () => {
         const c = colorInput.value;
         colorPicker.style.backgroundColor = c;
         const r = parseInt(c.substring(1, 3), 16) / 255;
         const g = parseInt(c.substring(3, 5), 16) / 255;
         const b = parseInt(c.substring(5, 7), 16) / 255;
-        effectList[id].buffer.setColor(r, g, b);
+        effect.buffer.setColor(r, g, b);
         processImage();
     }
     colorPicker.appendChild(colorInput);

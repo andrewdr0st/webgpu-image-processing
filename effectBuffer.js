@@ -1,8 +1,7 @@
 class EffectBuffer {
     constructor() {
         this.values = new Float32Array(8);
-        this.buffer;
-        this.bindGroup;
+        this.setupBuffer();
     }
 
     setupBuffer() {
