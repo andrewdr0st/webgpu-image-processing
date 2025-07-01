@@ -25,8 +25,7 @@ const ctx = canvas.getContext("webgpu");
 const display = document.getElementById("displayCanvas");
 const displayContainer = document.getElementById("displayContainer");
 const displayCtx = display.getContext("2d");
-const importButton = document.getElementById("importImage");
-const effectListContainer = document.getElementById("effectList");
+
 
 async function loadWGSLShader(path) {
     let response = await fetch("shaders/" + path);
@@ -96,14 +95,10 @@ async function setupGPUDevice() {
         const pipeline = new EffectPipeline(effect.shader);
         effect.pipeline = pipeline;
         pipelinePromises.push(pipeline.buildPipeline());
+        createEffectButton(effect, i);
     }
 
     await Promise.all(pipelinePromises);
-
-    addEffect(0);
-    addEffect(6);
-    addEffect(7);
-    addEffect(5);
 
     return true;
 }
@@ -217,24 +212,15 @@ function addEffect(id) {
         effect.buffer.setColor(1, 1, 1);
     }
     effectList.push(effect);
+    createEffectBox(effect);
 }
 
 async function init() {
     const supportsWebGPU = await setupGPUDevice();
     if (supportsWebGPU) {
-        for (let i = 0; i < effectList.length; i++) {
-            createEffectBox(effectList[i]);
-        }
         processImage();
     }
 }
 
 init();
 
-importButton.addEventListener("change", importImage);
-
-/*
-effectListContainer.addEventListener("click", e => {
-    console.log(e.target.dataset.id);
-});
-*/

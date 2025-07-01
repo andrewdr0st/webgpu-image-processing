@@ -1,3 +1,25 @@
+const overlay = document.getElementById("overlay");
+const overtlayContainer = document.getElementById("overlayContainer");
+const importButton = document.getElementById("importImage");
+const addEffectButton = document.getElementById("addEffectButton");
+const effectListContainer = document.getElementById("effectList");
+
+importButton.addEventListener("change", importImage);
+addEffectButton.addEventListener("click", () => {
+    overlay.style.display = "flex";
+});
+
+function createEffectButton(effect, id) {
+    const div = document.createElement("div");
+    div.className = "effect-button";
+    div.textContent = effect.name;
+    div.onclick = () => {
+        addEffect(id);
+        overlay.style.display = "none";
+    }
+    overtlayContainer.appendChild(div);
+}
+
 function createEffectBox(effect) {
     const div = document.createElement("div");
     div.className = "effect-box";
