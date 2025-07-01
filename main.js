@@ -95,7 +95,7 @@ async function setupGPUDevice() {
         const pipeline = new EffectPipeline(effect.shader);
         effect.pipeline = pipeline;
         pipelinePromises.push(pipeline.buildPipeline());
-        createEffectButton(effect, i);
+        createDropdownButton(effect, i);
     }
 
     await Promise.all(pipelinePromises);

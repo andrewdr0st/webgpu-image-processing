@@ -1,23 +1,26 @@
-const overlay = document.getElementById("overlay");
-const overtlayContainer = document.getElementById("overlayContainer");
+const effectDropdown = document.getElementById("addEffectDropdown");
 const importButton = document.getElementById("importImage");
 const addEffectButton = document.getElementById("addEffectButton");
 const effectListContainer = document.getElementById("effectList");
 
 importButton.addEventListener("change", importImage);
 addEffectButton.addEventListener("click", () => {
-    overlay.style.display = "flex";
+    effectDropdown.style.display = "block";
+});
+window.addEventListener("click", (e) => {
+    if (!e.target.matches("#addEffectButton")) {
+        effectDropdown.style.display = "none";
+    }
 });
 
-function createEffectButton(effect, id) {
+function createDropdownButton(effect, id) {
     const div = document.createElement("div");
-    div.className = "effect-button";
+    div.classList.add("dropdown-content", "clickable")
     div.textContent = effect.name;
     div.onclick = () => {
         addEffect(id);
-        overlay.style.display = "none";
     }
-    overtlayContainer.appendChild(div);
+    effectDropdown.appendChild(div);
 }
 
 function createEffectBox(effect) {
