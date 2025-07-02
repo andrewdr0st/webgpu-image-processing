@@ -3,6 +3,8 @@ const importButton = document.getElementById("importImage");
 const addEffectButton = document.getElementById("addEffectButton");
 const effectListContainer = document.getElementById("effectList");
 
+let effectListId = 0;
+
 async function importImage(event) {
     const imgFile = event.target.files[0];
     if (!imgFile) return;
@@ -34,6 +36,8 @@ function createDropdownButton(effect, id) {
 function createEffectBox(effect) {
     const div = document.createElement("div");
     div.className = "effect-box";
+    div.style.order = effectListId;
+    effectListId++;
     div.appendChild(createEffectBoxTitle(effect.name));
     if (effect.useValue) {
         div.appendChild(createEffectBoxValue(effect, "Strength", effect.defaultValue, effect.minValue, effect.maxValue, effect.stepAmount));
