@@ -3,6 +3,10 @@
     --button-hover: #47b2f5;
 }
 
+.hide {
+    visibility: hidden;
+}
+
 .clickable {
     user-select: none;
     cursor: pointer;
@@ -134,22 +138,24 @@ html, body {
     padding-bottom: 15px;
 }
 
-.effect-placeholder {
-    width: 95%;
-    height: 50px;
-    margin-top: 10px;
-    border: 3px dashed var(--button-color);
-    border-radius: 3px; 
-}
-
 .effect-box {
     width: 95%;
     margin-top: 10px;
+    border-radius: 3px; 
+}
+
+.effect-item {
     background-color: #9db5c4;
-    border-radius: 3px;
+    box-shadow: 2px 4px 4px rgba(0, 0, 0, 0.2);
+}
+
+.effect-placeholder {
+    border: 3px dashed var(--button-color);
+}
+
+.effect-container {
     display: flex;
     flex-direction: column;
-    box-shadow: 2px 4px 4px rgba(0, 0, 0, 0.2);
 }
 
 .effect-box-row {

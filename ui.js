@@ -35,16 +35,19 @@ function createDropdownButton(effect, id) {
 
 function createEffectBox(effect) {
     const div = document.createElement("div");
-    div.className = "effect-box";
+    div.classList.add("effect-box", "effect-item");
     div.style.order = effectListId;
     effectListId++;
-    div.appendChild(createEffectBoxTitle(effect.name));
+    const container = document.createElement("div");
+    container.className = "effect-container";
+    container.appendChild(createEffectBoxTitle(effect.name));
     if (effect.useValue) {
-        div.appendChild(createEffectBoxValue(effect, "Strength", effect.defaultValue, effect.minValue, effect.maxValue, effect.stepAmount));
+        container.appendChild(createEffectBoxValue(effect, "Strength", effect.defaultValue, effect.minValue, effect.maxValue, effect.stepAmount));
     }
     if (effect.useColor) {
-        div.appendChild(createEffectBoxColor(effect));
+        container.appendChild(createEffectBoxColor(effect));
     }
+    div.appendChild(container);
     effectListContainer.appendChild(div);
 }
 
