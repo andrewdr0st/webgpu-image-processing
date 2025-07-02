@@ -66,6 +66,14 @@ html, body {
     background-color: var(--button-hover);
 }
 
+.right-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #474c53;
+    height: 100%;
+}
+
 .effect-header {
     background-color: #2a2d31;
     color: white;
@@ -117,15 +125,13 @@ html, body {
     background-color: var(--button-hover);
 }
 
-.right-container {
-    flex: 1;
-    background-color: #474c53;
-}
-
 #effectList {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow-y: auto;
+    padding-bottom: 15px;
 }
 
 .effect-box {

@@ -3,6 +3,14 @@ const importButton = document.getElementById("importImage");
 const addEffectButton = document.getElementById("addEffectButton");
 const effectListContainer = document.getElementById("effectList");
 
+async function importImage(event) {
+    const imgFile = event.target.files[0];
+    if (!imgFile) return;
+    const img = await createImageBitmap(imgFile);
+    createImgTextures(img);
+    processImage();
+}
+
 importButton.addEventListener("change", importImage);
 addEffectButton.addEventListener("click", () => {
     effectDropdown.style.display = "block";
@@ -38,7 +46,7 @@ function createEffectBox(effect) {
 
 function createEffectBoxTitle(effectName) {
     const div = document.createElement("div");
-    div.classList.add("effect-box-row", "effect-box-title");
+    div.classList.add("effect-box-row", "effect-box-title", "clickable");
     div.textContent = effectName;
     return div;
 }
@@ -84,6 +92,7 @@ function createEffectBoxColor(effect) {
     colorInput.className = "color-input";
     colorInput.value = "#FFFFFF"
     colorInput.oninput = () => {
+        console.log("inputed");
         const c = colorInput.value;
         colorPicker.style.backgroundColor = c;
         const r = parseInt(c.substring(1, 3), 16) / 255;

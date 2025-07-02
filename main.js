@@ -1,8 +1,6 @@
 let adapter;
 let device;
 
-let img;
-
 let originalTexture;
 let compTexture1;
 let compTexture2;
@@ -83,9 +81,9 @@ async function setupGPUDevice() {
         ]
     });
 
-    img = await loadImage("squirrel.jpg");
+    const img = await loadImage("squirrel.jpg");
 
-    createImgTextures();
+    createImgTextures(img);
 
     allEffects = await loadJSON("effects.json");
     const pipelinePromises = [linearPipeline.buildPipeline(), srgbPipeline.buildPipeline()];
@@ -134,7 +132,7 @@ function getBindGroup() {
     return curBG1 ? compBG1 : compBG2;
 }
 
-function createImgTextures() {
+function createImgTextures(img) {
     canvas.width = img.width;
     canvas.height = img.height;
 
@@ -184,14 +182,6 @@ function createImgTextures() {
     device.queue.copyExternalImageToTexture({source: img}, {texture: originalTexture}, [img.width, img.height]);
 }
 
-async function importImage(event) {
-    const imgFile = event.target.files[0];
-    if (!imgFile) return;
-    img = await createImageBitmap(imgFile);
-    createImgTextures();
-    processImage();
-}
-
 function copyImageToDisplay() {
     const wRatio = displayContainer.clientWidth / canvas.width;
     const hRatio = displayContainer.clientHeight / canvas.height;
@@ -205,7 +195,7 @@ function copyImageToDisplay() {
 function addEffect(id) {
     const effect = {...allEffects[id]};
     effect.buffer = new EffectBuffer();
-    if (effect.useValues) {
+    if (effect.useValue) {
         effect.buffer.setValues(effect.defaultValue);
     }
     if (effect.useColor) {
@@ -213,6 +203,7 @@ function addEffect(id) {
     }
     effectList.push(effect);
     createEffectBox(effect);
+    processImage();
 }
 
 async function init() {
