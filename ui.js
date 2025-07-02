@@ -1,3 +1,28 @@
+const effectDropdown = document.getElementById("addEffectDropdown");
+const importButton = document.getElementById("importImage");
+const addEffectButton = document.getElementById("addEffectButton");
+const effectListContainer = document.getElementById("effectList");
+
+importButton.addEventListener("change", importImage);
+addEffectButton.addEventListener("click", () => {
+    effectDropdown.style.display = "block";
+});
+window.addEventListener("click", (e) => {
+    if (!e.target.matches("#addEffectButton")) {
+        effectDropdown.style.display = "none";
+    }
+});
+
+function createDropdownButton(effect, id) {
+    const div = document.createElement("div");
+    div.classList.add("dropdown-content", "clickable")
+    div.textContent = effect.name;
+    div.onclick = () => {
+        addEffect(id);
+    }
+    effectDropdown.appendChild(div);
+}
+
 function createEffectBox(effect) {
     const div = document.createElement("div");
     div.className = "effect-box";

@@ -15,13 +15,17 @@
             </div>
             <div class="button-row">
                 <input type="file" id="importImage" accept="image/*"/>
-                <label for="importImage" class="import-button">Import</label>
+                <label for="importImage" class="import-button clickable">Import</label>
             </div>
         </div>
 
         <div class="right-container">
             <div class="effect-header">
                 Effects
+                <div class="dropdown-container">
+                    <div id="addEffectButton" class="clickable">+</div>
+                    <div id="addEffectDropdown"></div>
+                </div>
             </div>
             <div id="effectList">
                 <!--
