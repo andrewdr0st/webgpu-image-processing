@@ -4,9 +4,10 @@ const addEffectButton = document.getElementById("addEffectButton");
 const effectListContainer = document.getElementById("effectList");
 
 let effectListId = 0;
+let draggingBox = null;
 
-async function importImage(event) {
-    const imgFile = event.target.files[0];
+async function importImage(e) {
+    const imgFile = e.target.files[0];
     if (!imgFile) return;
     const img = await createImageBitmap(imgFile);
     createImgTextures(img);
@@ -17,9 +18,27 @@ importButton.addEventListener("change", importImage);
 addEffectButton.addEventListener("click", () => {
     effectDropdown.style.display = "block";
 });
+effectListContainer.addEventListener("mousedown", (e) => {
+    const t = e.target;
+    if (t.matches(".effect-box-title")) {
+        const container = t.parentElement;
+        const box = container.parentElement;
+        draggingBox = box;
+        box.classList.replace("effect-item", "effect-placeholder");
+        container.classList.add("hide");
+    }
+});
 window.addEventListener("click", (e) => {
     if (!e.target.matches("#addEffectButton")) {
         effectDropdown.style.display = "none";
+    }
+});
+window.addEventListener("mouseup", () => {
+    if (draggingBox) {
+        const container = draggingBox.children[0];
+        container.classList.remove("hide");
+        draggingBox.classList.replace("effect-placeholder", "effect-item");
+        draggingBox = null;
     }
 });
 
@@ -99,7 +118,6 @@ function createEffectBoxColor(effect) {
     colorInput.className = "color-input";
     colorInput.value = "#FFFFFF"
     colorInput.oninput = () => {
-        console.log("inputed");
         const c = colorInput.value;
         colorPicker.style.backgroundColor = c;
         const r = parseInt(c.substring(1, 3), 16) / 255;

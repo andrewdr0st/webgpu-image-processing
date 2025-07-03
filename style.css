@@ -1,6 +1,8 @@
 :root {
     --button-color: #20A0F0;
     --button-hover: #47b2f5;
+    --panel-dark: #2a2d31;
+    --panel-light: #474c53;
 }
 
 .hide {
@@ -48,7 +50,7 @@ html, body {
 .button-row {
     display: flex;
     flex: 1;
-    background-color: #2a2d31;
+    background-color: var(--panel-dark);
 }
 
 #importImage {
@@ -74,12 +76,12 @@ html, body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: #474c53;
+    background-color: var(--panel-light);
     height: 100%;
 }
 
 .effect-header {
-    background-color: #2a2d31;
+    background-color: var(--panel-dark);
     color: white;
     font-size: 24px;
     width: 100%;
@@ -214,6 +216,4 @@ html, body {
     overflow: hidden;
     white-space: nowrap;
 }
-
-
 
