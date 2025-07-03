@@ -217,3 +217,7 @@ html, body {
     white-space: nowrap;
 }
 
+#draggableEffectBox {
+    position: fixed;
+}
+

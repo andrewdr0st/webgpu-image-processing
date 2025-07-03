@@ -2,9 +2,14 @@ const effectDropdown = document.getElementById("addEffectDropdown");
 const importButton = document.getElementById("importImage");
 const addEffectButton = document.getElementById("addEffectButton");
 const effectListContainer = document.getElementById("effectList");
+const draggableEffectBox = document.getElementById("draggableEffectBox");
 
 let effectListId = 0;
 let draggingBox = null;
+let dragX = 0;
+let dragY = 0;
+let prevX = 0;
+let prevY = 0;
 
 async function importImage(e) {
     const imgFile = e.target.files[0];
@@ -23,9 +28,17 @@ effectListContainer.addEventListener("mousedown", (e) => {
     if (t.matches(".effect-box-title")) {
         const container = t.parentElement;
         const box = container.parentElement;
+        draggableEffectBox.appendChild(container.cloneNode(true));
+        dragX = box.offsetLeft;
+        dragY = (box.offsetTop - 8)
+        positionDraggableBox();
+        draggableEffectBox.style.width = box.offsetWidth + "px";
+        draggableEffectBox.style.display = "block";
+        prevX = e.clientX;
+        prevY = e.clientY;
         draggingBox = box;
         box.classList.replace("effect-item", "effect-placeholder");
-        container.classList.add("hide");
+        container.classList.add("hide");        
     }
 });
 window.addEventListener("click", (e) => {
@@ -39,8 +52,26 @@ window.addEventListener("mouseup", () => {
         container.classList.remove("hide");
         draggingBox.classList.replace("effect-placeholder", "effect-item");
         draggingBox = null;
+        draggableEffectBox.style.display = "none";
+        draggableEffectBox.removeChild(draggableEffectBox.children[0]);
     }
 });
+window.addEventListener("mousemove", (e) => {
+    if (draggingBox) {
+        let x = e.clientX - prevX;
+        let y = e.clientY - prevY;
+        prevX = e.clientX;
+        prevY = e.clientY;
+        dragX += x;
+        dragY += y;
+        positionDraggableBox();
+    }
+});
+
+function positionDraggableBox() {
+    draggableEffectBox.style.top = dragY + "px";
+    draggableEffectBox.style.left = dragX + "px";
+}
 
 function createDropdownButton(effect, id) {
     const div = document.createElement("div");
