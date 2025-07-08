@@ -60,6 +60,16 @@
         "useColor": true
     },
     {
+        "name": "Hue Rotation",
+        "shader": "huerotate",
+        "useValue": true,
+        "defaultValue": 0,
+        "minValue": -360,
+        "maxValue": 360,
+        "stepAmount": 1,
+        "useColor": false
+    },
+    {
         "name": "Grayscale",
         "shader": "grayscale",
         "useValue": false,

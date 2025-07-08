@@ -4,7 +4,7 @@ const addEffectButton = document.getElementById("addEffectButton");
 const effectListContainer = document.getElementById("effectList");
 const draggableEffectBox = document.getElementById("draggableEffectBox");
 
-let effectListId = 0;
+let nextOrder = 0;
 let draggingBox = null;
 let dragX = 0;
 let dragY = 0;
@@ -86,8 +86,8 @@ function createDropdownButton(effect, id) {
 function createEffectBox(effect) {
     const div = document.createElement("div");
     div.classList.add("effect-box", "effect-item");
-    div.style.order = effectListId;
-    effectListId++;
+    div.style.order = nextOrder;
+    nextOrder += 2;
     const container = document.createElement("div");
     container.className = "effect-container";
     container.appendChild(createEffectBoxTitle(effect.name));
@@ -99,6 +99,7 @@ function createEffectBox(effect) {
     }
     div.appendChild(container);
     effectListContainer.appendChild(div);
+    effect.div = div;
 }
 
 function createEffectBoxTitle(effectName) {
@@ -132,6 +133,8 @@ function createEffectBoxValue(effect, text, defaultVal, minVal, maxVal, stepAmou
     }
     numberInput.oninput = () => {
         slider.value = numberInput.value;
+        effect.buffer.setValues(numberInput.value);
+        processImage();
     }
     div.appendChild(slider);
     div.appendChild(numberInput);
