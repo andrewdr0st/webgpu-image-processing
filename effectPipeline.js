@@ -15,7 +15,7 @@ class EffectPipeline {
                 bindGroupLayouts: this.useValues ? [processLayout, valueLayout] : [processLayout]
             });
             this.pipeline = device.createComputePipeline({
-                layout: this.name + " pipeline",
+                label: this.name + " pipeline",
                 layout: pipelineLayout,
                 compute: {module: module}
             });
