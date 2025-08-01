@@ -17,6 +17,8 @@ const effectList = [];
 const pipelineList = [];
 const linearPipeline = new EffectPipeline("tolinear", false);
 const srgbPipeline = new EffectPipeline("tosrgb", false);
+const oklabPipeline = new EffectPipeline("tooklab", false);
+const oklchPipeline = new EffectPipeline("tooklch", false);
 
 const canvas = document.getElementById("processCanvas");
 const ctx = canvas.getContext("webgpu");
@@ -86,7 +88,7 @@ async function setupGPUDevice() {
     createImgTextures(img);
 
     allEffects = await loadJSON("effects.json");
-    const pipelinePromises = [linearPipeline.buildPipeline(), srgbPipeline.buildPipeline()];
+    const pipelinePromises = [linearPipeline.buildPipeline(), srgbPipeline.buildPipeline(), oklabPipeline.buildPipeline(), oklchPipeline.buildPipeline()];
 
     for (let i = 0; i < allEffects.length; i++) {
         const effect = allEffects[i];
@@ -124,6 +126,24 @@ function processImage() {
     device.queue.submit([commandBuffer]);
 
     copyImageToDisplay();
+
+    convertColorSpace();
+}
+
+function convertColorSpace() {
+    if (exportColorSpace != "sRGB") {
+        const encoder = device.createCommandEncoder({ label: "export encoder"});
+        linearPipeline.run(encoder, getBindGroup());
+        if (exportColorSpace == "OKLab") {
+            oklabPipeline.run(encoder, getBindGroup());
+        } else if (exportColorSpace == "OKLCH") {
+            oklchPipeline.run(encoder, getBindGroup());
+        }
+        let fTex = curBG1 ? compTexture2 : compTexture1;
+        encoder.copyTextureToTexture({texture: fTex}, {texture: ctx.getCurrentTexture()}, {width: canvas.width, height: canvas.height});
+        const commandBuffer = encoder.finish();
+        device.queue.submit([commandBuffer]);
+    }
 }
 
 let curBG1 = false;

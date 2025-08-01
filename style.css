@@ -3,6 +3,8 @@
     --button-hover: #47b2f5;
     --panel-dark: #2a2d31;
     --panel-light: #474c53;
+    --dropdown-background: #829dad;
+    --dropdown-hover: #6e8794;
 }
 
 .hide {
@@ -25,7 +27,7 @@ html, body {
 }
 
 #displayContainer {
-    flex: 7;
+    flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -49,7 +51,8 @@ html, body {
 
 .button-row {
     display: flex;
-    flex: 1;
+    min-height: 40px;
+    max-height: 70px;
     background-color: var(--panel-dark);
 }
 
@@ -57,9 +60,13 @@ html, body {
     display: none;
 }
 
+#exportAnchor {
+    display: none;
+}
+
 .import-button {
     display: inline-block;
-    padding: 40px 30px;
+    padding: 15px 25px;
     margin: 5px;
     background-color: var(--button-color);
     color: white;
@@ -70,6 +77,40 @@ html, body {
 
 .import-button:hover {
     background-color: var(--button-hover);
+}
+
+.selector-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    color: white;
+    font-size: 20px;
+    margin: 8px;
+}
+
+.selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--panel-light);
+    margin-left: 8px;
+    padding: 0px 8px;
+    min-height: 45px;
+    min-width: 100px;
+    user-select: none;
+}
+
+.dropup {
+    display: none;
+    position: absolute;
+    background-color: var(--dropdown-background);
+    min-width: 100px;
+    bottom: 52px;
+}
+
+.selector:hover .dropup {
+    display: block;
 }
 
 .right-container {
@@ -99,7 +140,7 @@ html, body {
 #addEffectDropdown {
     display: none;
     position: absolute;
-    background-color: #829dad;
+    background-color: var(--dropdown-background);
     min-width: 180px;
     max-height: 600px;
     box-shadow: 4px 8px 8px rgba(0, 0, 0, 0.2);
@@ -115,7 +156,7 @@ html, body {
 }
 
 .dropdown-content:hover {
-    background-color: #6e8794;
+    background-color: var(--dropdown-hover);
 }
 
 #addEffectButton {

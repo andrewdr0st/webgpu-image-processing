@@ -7,7 +7,6 @@
     <link href="style.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
-
     <div class="container">
         <div class="left-container">
             <div id="displayContainer">
@@ -16,6 +15,22 @@
             <div class="button-row">
                 <input type="file" id="importImage" accept="image/*"/>
                 <label for="importImage" class="import-button clickable">Import</label>
+                <a id="exportAnchor" download></a>
+                <div id="exportButton" class="import-button clickable">Export</div>
+                <div class="selector-container">
+                    Filetype:
+                    <div id="filetypeSelector" class="selector">
+                        PNG
+                        <div class="dropup"></div>
+                    </div>
+                </div>
+                <div class="selector-container">
+                    Color Space:
+                    <div id="colorSpaceSelector" class="selector">
+                        sRGB
+                        <div class="dropup"></div>
+                    </div>
+                </div>
             </div>
         </div>
 

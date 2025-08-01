@@ -1,8 +1,25 @@
 const effectDropdown = document.getElementById("addEffectDropdown");
 const importButton = document.getElementById("importImage");
+const exportButton = document.getElementById("exportButton");
+const exportAnchor = document.getElementById("exportAnchor");
+const filetypeSelector = document.getElementById("filetypeSelector");
+const colorSpaceSelector = document.getElementById("colorSpaceSelector");
 const addEffectButton = document.getElementById("addEffectButton");
 const effectListContainer = document.getElementById("effectList");
 const draggableEffectBox = document.getElementById("draggableEffectBox");
+
+let exportFiletype = "png";
+let exportQuality = 1;
+let exportColorSpace = "sRGB";
+const fileParams = [
+    ["PNG", "png", 1],
+    ["JPEG", "jpeg", 0.75],
+    ["WebP", "webp", 1],
+    ["WebP (Lossy)", "webp", 0.75]
+];
+const colorSpaceParams = ["sRGB", "Linear", "OKLab", "OKLCH"];
+
+createDropupButtons();
 
 let nextOrder = 0;
 let draggingBox = null;
@@ -19,7 +36,17 @@ async function importImage(e) {
     processImage();
 }
 
+function exportImage(blob) {
+    const blobUrl = URL.createObjectURL(blob);
+    exportAnchor.setAttribute("href", blobUrl);
+    exportAnchor.click();
+    URL.revokeObjectURL(blobUrl);
+}
+
 importButton.addEventListener("change", importImage);
+exportButton.addEventListener("click", () => {
+    canvas.toBlob(exportImage, "image/" + exportFiletype, exportQuality);
+});
 addEffectButton.addEventListener("click", () => {
     effectDropdown.style.display = "block";
 });
@@ -71,6 +98,37 @@ window.addEventListener("mousemove", (e) => {
 function positionDraggableBox() {
     draggableEffectBox.style.top = dragY + "px";
     draggableEffectBox.style.left = dragX + "px";
+}
+
+function createDropupButtons() {
+    const filetypeDropup = filetypeSelector.querySelector(".dropup");
+    for (let i = 0; i < fileParams.length; i++) {
+        const param = fileParams[i];
+        const div = document.createElement("div");
+        div.classList.add("dropdown-content", "clickable");
+        div.textContent = param[0];
+        div.onclick = () => {
+            filetypeSelector.textContent = param[0];
+            filetypeSelector.appendChild(filetypeDropup);
+            exportFiletype = param[1];
+            exportQuality = param[2];
+        }
+        filetypeDropup.appendChild(div);
+    }
+    const colorSpaceDropup = colorSpaceSelector.querySelector(".dropup");
+    for (let i = 0; i < colorSpaceParams.length; i++) {
+        const param = colorSpaceParams[i];
+        const div = document.createElement("div");
+        div.classList.add("dropdown-content", "clickable");
+        div.textContent = param;
+        div.onclick = () => {
+            colorSpaceSelector.textContent = param;
+            colorSpaceSelector.appendChild(colorSpaceDropup);
+            exportColorSpace = param;
+            convertColorSpace();
+        }
+        colorSpaceDropup.appendChild(div);
+    }
 }
 
 function createDropdownButton(effect, id) {
