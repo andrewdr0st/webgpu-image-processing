@@ -262,3 +262,14 @@ html, body {
     position: fixed;
 }
 
+.effect-options-button {
+    float: right;
+    padding: 0px 5px;
+    margin-right: 5px;
+    font-size: 18px;
+}
+
+.effect-options-button:hover {
+    color: #d0d0d0;
+}
+

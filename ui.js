@@ -23,6 +23,9 @@ createDropupButtons();
 
 let nextOrder = 0;
 let draggingBox = null;
+let draggingBoxIdx = 0;
+let topTarget = -1;
+let bottomTarget = -1;
 let dragX = 0;
 let dragY = 0;
 let prevX = 0;
@@ -57,13 +60,15 @@ effectListContainer.addEventListener("mousedown", (e) => {
         const box = container.parentElement;
         draggableEffectBox.appendChild(container.cloneNode(true));
         dragX = box.offsetLeft;
-        dragY = (box.offsetTop - 8)
+        dragY = box.offsetTop - 8;
         positionDraggableBox();
         draggableEffectBox.style.width = box.offsetWidth + "px";
         draggableEffectBox.style.display = "block";
         prevX = e.clientX;
         prevY = e.clientY;
         draggingBox = box;
+        draggingBoxIdx = parseInt(box.style.order);
+        calculateTargetMidpoints();
         box.classList.replace("effect-item", "effect-placeholder");
         container.classList.add("hide");        
     }
@@ -81,6 +86,8 @@ window.addEventListener("mouseup", () => {
         draggingBox = null;
         draggableEffectBox.style.display = "none";
         draggableEffectBox.removeChild(draggableEffectBox.children[0]);
+        reorderEffects();
+        processImage();
     }
 });
 window.addEventListener("mousemove", (e) => {
@@ -98,6 +105,43 @@ window.addEventListener("mousemove", (e) => {
 function positionDraggableBox() {
     draggableEffectBox.style.top = dragY + "px";
     draggableEffectBox.style.left = dragX + "px";
+    if (dragY < topTarget && topTarget > -1) {
+        swapEffects(draggingBoxIdx, draggingBoxIdx - 1);
+        draggingBoxIdx--;
+        calculateTargetMidpoints();
+    } else if (dragY > bottomTarget && bottomTarget > -1) {
+        swapEffects(draggingBoxIdx, draggingBoxIdx + 1);
+        draggingBoxIdx++;
+        calculateTargetMidpoints();
+    }
+}
+
+function swapEffects(idx1, idx2) {
+    let tmp = effectList[idx1];
+    effectList[idx1] = effectList[idx2];
+    effectList[idx2] = tmp;
+    reorderEffects();
+}
+
+function reorderEffects() {
+    for (let i = 0; i < effectList.length; i++) {
+        effectList[i].div.style.order = i;
+    }
+}
+
+function calculateTargetMidpoints() {
+    if (draggingBoxIdx > 0) {
+        let topNode = effectList[draggingBoxIdx - 1].div;
+        topTarget = topNode.offsetTop + topNode.offsetHeight * 0.5;
+    } else {
+        topTarget = -1;
+    }
+    if (draggingBoxIdx < effectList.length - 1) {
+        let bottomNode = effectList[draggingBoxIdx + 1].div;
+        bottomTarget = bottomNode.offsetTop;
+    } else {
+        bottomTarget = -1;
+    }
 }
 
 function createDropupButtons() {
@@ -145,7 +189,7 @@ function createEffectBox(effect) {
     const div = document.createElement("div");
     div.classList.add("effect-box", "effect-item");
     div.style.order = nextOrder;
-    nextOrder += 2;
+    nextOrder++;
     const container = document.createElement("div");
     container.className = "effect-container";
     container.appendChild(createEffectBoxTitle(effect.name));
@@ -164,6 +208,10 @@ function createEffectBoxTitle(effectName) {
     const div = document.createElement("div");
     div.classList.add("effect-box-row", "effect-box-title", "clickable");
     div.textContent = effectName;
+    const optionsButton = document.createElement("div");
+    optionsButton.classList.add("effect-options-button");
+    optionsButton.textContent = "⋯";
+    div.appendChild(optionsButton);
     return div;
 }
 
