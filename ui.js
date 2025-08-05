@@ -58,17 +58,17 @@ effectListContainer.addEventListener("mousedown", (e) => {
     if (t.matches(".effect-box-title")) {
         const container = t.parentElement;
         const box = container.parentElement;
-        draggableEffectBox.appendChild(container.cloneNode(true));
-        dragX = box.offsetLeft;
-        dragY = box.offsetTop - 8;
-        positionDraggableBox();
-        draggableEffectBox.style.width = box.offsetWidth + "px";
-        draggableEffectBox.style.display = "block";
-        prevX = e.clientX;
-        prevY = e.clientY;
         draggingBox = box;
         draggingBoxIdx = parseInt(box.style.order);
         calculateTargetMidpoints();
+        draggableEffectBox.appendChild(container.cloneNode(true));
+        draggableEffectBox.style.width = box.offsetWidth + "px";
+        draggableEffectBox.style.display = "block";
+        dragX = box.offsetLeft;
+        dragY = box.offsetTop - 8;
+        positionDraggableBox();
+        prevX = e.clientX;
+        prevY = e.clientY;
         box.classList.replace("effect-item", "effect-placeholder");
         container.classList.add("hide");        
     }
