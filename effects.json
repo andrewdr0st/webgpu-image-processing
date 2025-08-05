@@ -63,6 +63,7 @@
         "name": "Hue Rotation",
         "shader": "huerotate",
         "useValue": true,
+        "valueText": "Degrees",
         "defaultValue": 0,
         "minValue": -360,
         "maxValue": 360,

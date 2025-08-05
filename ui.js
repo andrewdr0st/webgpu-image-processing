@@ -169,7 +169,7 @@ function createDropupButtons() {
             colorSpaceSelector.textContent = param;
             colorSpaceSelector.appendChild(colorSpaceDropup);
             exportColorSpace = param;
-            convertColorSpace();
+            processImage();
         }
         colorSpaceDropup.appendChild(div);
     }
@@ -193,8 +193,9 @@ function createEffectBox(effect) {
     const container = document.createElement("div");
     container.className = "effect-container";
     container.appendChild(createEffectBoxTitle(effect.name));
+    let text = effect.valueText ? effect.valueText : "Strength";
     if (effect.useValue) {
-        container.appendChild(createEffectBoxValue(effect, "Strength", effect.defaultValue, effect.minValue, effect.maxValue, effect.stepAmount));
+        container.appendChild(createEffectBoxValue(effect, text, effect.defaultValue, effect.minValue, effect.maxValue, effect.stepAmount));
     }
     if (effect.useColor) {
         container.appendChild(createEffectBoxColor(effect));

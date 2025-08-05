@@ -3,8 +3,11 @@
     --button-hover: #47b2f5;
     --panel-dark: #2a2d31;
     --panel-light: #474c53;
-    --dropdown-background: #829dad;
+    /*--dropdown-background: #829dad;
     --dropdown-hover: #6e8794;
+    */
+    --dropdown-background: #787f8a;
+    --dropdown-hover: #808999;
 }
 
 .hide {
@@ -37,10 +40,6 @@ html, body {
 .container {
     display: flex;
     height: 100vh;
-}
-
-@media only screen and (max-width: 600px) {
-    .container {flex-direction: column;}
 }
 
 .left-container {
@@ -155,6 +154,10 @@ html, body {
     color: white;
 }
 
+.dropdown-content-small {
+    padding: 5px;
+}
+
 .dropdown-content:hover {
     background-color: var(--dropdown-hover);
 }
@@ -170,6 +173,15 @@ html, body {
 
 #addEffectButton:hover {
     background-color: var(--button-hover);
+}
+
+#effectOptionsDropup {
+    position: absolute;
+    right: 12px;
+    background-color: var(--dropdown-background);
+    box-shadow: 4px 8px 8px rgba(0, 0, 0, 0.2);
+    min-width: 80px;
+    z-index: 1;
 }
 
 #effectList {
@@ -273,3 +285,7 @@ html, body {
     color: #d0d0d0;
 }
 
+@media only screen and (max-width: 600px) {
+    .container {flex-direction: column;}
+    .selector-container {display: none;}
+}
