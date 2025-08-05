@@ -70,8 +70,24 @@
         "useColor": false
     },
     {
+        "name": "Quantize",
+        "shader": "quantize",
+        "useValue": true,
+        "defaultValue": 8,
+        "minValue": 4,
+        "maxValue": 24,
+        "stepAmount": 1,
+        "useColor": false
+    },
+    {
         "name": "Grayscale",
         "shader": "grayscale",
+        "useValue": false,
+        "useColor": false
+    },
+    {
+        "name": "Negative",
+        "shader": "negative",
         "useValue": false,
         "useColor": false
     },
@@ -89,12 +105,6 @@
         "minValue": 0,
         "maxValue": 10,
         "stepAmount": 1,
-        "useColor": false
-    },
-    {
-        "name": "Negative",
-        "shader": "negative",
-        "useValue": false,
         "useColor": false
     }
 ]
