@@ -17,19 +17,21 @@ struct valueStruct {
         return;
     }
 
+    let size = i32(values.amount);
+    let s = values.amount * 2 + 1;
     var totalc = vec4f(0, 0, 0, 0);
     var x: i32;
     var y: i32;
 
-    for (x = -1; x <= 1; x++) {
-        for (y = -1; y <= 1; y++) {
+    for (x = -size; x <= size; x++) {
+        for (y = -size; y <= size; y++) {
             let p = vec2i(clamp(ix + x, 0, max_x - 1), clamp(iy + y, 0, max_y - 1));
             let c = textureLoad(img_in, p);
             totalc += c;
         }
     }
 
-    totalc *= 0.11111;
+    totalc /= s * s;
 
     textureStore(img_out, id.xy, totalc);
 }
