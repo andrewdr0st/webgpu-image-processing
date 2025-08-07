@@ -8,7 +8,7 @@ struct valueStruct {
 @group(0) @binding(1) var img_out: texture_storage_2d<rgba8unorm, write>;
 @group(1) @binding(0) var<uniform> values: valueStruct;
 
-@compute @workgroup_size(8, 8, 1) fn brightness(@builtin(global_invocation_id) id: vec3u) {
+@compute @workgroup_size(8, 8, 1) fn quantize(@builtin(global_invocation_id) id: vec3u) {
     let max_x = textureDimensions(img_in).x;
     let max_y = textureDimensions(img_in).y;
     if (id.x > max_x || id.y > max_y) {

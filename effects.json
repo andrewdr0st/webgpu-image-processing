@@ -81,6 +81,16 @@
         "useColor": false
     },
     {
+        "name": "Pixelate",
+        "shader": "pixelate",
+        "useValue": true,
+        "defaultValue": 2,
+        "minValue": 1,
+        "maxValue": 8,
+        "stepAmount": 1,
+        "useColor": false
+    },
+    {
         "name": "Grayscale",
         "shader": "grayscale",
         "useValue": false,
