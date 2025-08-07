@@ -1,4 +1,3 @@
-const effectDropdown = document.getElementById("addEffectDropdown");
 const importButton = document.getElementById("importImage");
 const exportButton = document.getElementById("exportButton");
 const exportAnchor = document.getElementById("exportAnchor");
@@ -7,6 +6,10 @@ const colorSpaceSelector = document.getElementById("colorSpaceSelector");
 const addEffectButton = document.getElementById("addEffectButton");
 const effectListContainer = document.getElementById("effectList");
 const draggableEffectBox = document.getElementById("draggableEffectBox");
+const effectDropdown = document.getElementById("addEffectDropdown");
+const effectOptionsDropup = document.getElementById("effectOptionsDropup");
+const effectOptionEnable = effectOptionsDropup.children[0];
+const effectOptionDelete = effectOptionsDropup.children[1];
 
 let exportFiletype = "png";
 let exportQuality = 1;
@@ -22,8 +25,8 @@ const colorSpaceParams = ["sRGB", "Linear", "OKLab", "OKLCH"];
 createDropupButtons();
 
 let nextOrder = 0;
-let draggingBox = null;
-let draggingBoxIdx = 0;
+let activeBox = null;
+let activeBoxIdx = 0;
 let topTarget = -1;
 let bottomTarget = -1;
 let dragX = 0;
@@ -58,8 +61,8 @@ effectListContainer.addEventListener("mousedown", (e) => {
     if (t.matches(".effect-box-title")) {
         const container = t.parentElement;
         const box = container.parentElement;
-        draggingBox = box;
-        draggingBoxIdx = parseInt(box.style.order);
+        activeBox = box;
+        activeBoxIdx = parseInt(box.style.order);
         calculateTargetMidpoints();
         draggableEffectBox.appendChild(container.cloneNode(true));
         draggableEffectBox.style.width = box.offsetWidth + "px";
@@ -70,20 +73,53 @@ effectListContainer.addEventListener("mousedown", (e) => {
         prevX = e.clientX;
         prevY = e.clientY;
         box.classList.replace("effect-item", "effect-placeholder");
-        container.classList.add("hide");        
+        container.classList.add("hide");
+        effectOptionsDropup.style.display = "none";
     }
+});
+effectListContainer.addEventListener("click", (e) => {
+    const t = e.target;
+    if (t.matches(".effect-options-button")) {
+        const effectTitle = t.parentElement;
+        const box = effectTitle.parentElement.parentElement;
+        activeBoxIdx = box.style.order;
+        effectOptionsDropup.style.display = "block";
+        effectOptionsDropup.style.top = (t.getBoundingClientRect().y - 60) + "px";
+        effectOptionEnable.textContent = effectList[activeBoxIdx].enabled ? "Disable" : "Enable";
+    }
+});
+effectOptionEnable.addEventListener("click", () => {
+    let effect = effectList[activeBoxIdx];
+    effect.enabled = !effect.enabled;
+    let effectTitle = effect.div.children[0].children[0];
+    if (effect.enabled) {
+        effectTitle.classList.remove("effect-disabled")
+    } else {
+        effectTitle.classList.add("effect-disabled")
+    }
+    processImage();
+});
+effectOptionDelete.addEventListener("click", () => {
+    effectList[activeBoxIdx].div.remove();
+    effectList.splice(activeBoxIdx, 1);
+    nextOrder--;
+    reorderEffects();
+    processImage();
 });
 window.addEventListener("click", (e) => {
     if (!e.target.matches("#addEffectButton")) {
         effectDropdown.style.display = "none";
     }
+    if (!e.target.matches("#effectOptionsDropup") && !e.target.matches(".effect-options-button")) {
+        effectOptionsDropup.style.display = "none";
+    }
 });
 window.addEventListener("mouseup", () => {
-    if (draggingBox) {
-        const container = draggingBox.children[0];
+    if (activeBox) {
+        const container = activeBox.children[0];
         container.classList.remove("hide");
-        draggingBox.classList.replace("effect-placeholder", "effect-item");
-        draggingBox = null;
+        activeBox.classList.replace("effect-placeholder", "effect-item");
+        activeBox = null;
         draggableEffectBox.style.display = "none";
         draggableEffectBox.removeChild(draggableEffectBox.children[0]);
         reorderEffects();
@@ -91,7 +127,7 @@ window.addEventListener("mouseup", () => {
     }
 });
 window.addEventListener("mousemove", (e) => {
-    if (draggingBox) {
+    if (activeBox) {
         let x = e.clientX - prevX;
         let y = e.clientY - prevY;
         prevX = e.clientX;
@@ -106,12 +142,12 @@ function positionDraggableBox() {
     draggableEffectBox.style.top = dragY + "px";
     draggableEffectBox.style.left = dragX + "px";
     if (dragY < topTarget && topTarget > -1) {
-        swapEffects(draggingBoxIdx, draggingBoxIdx - 1);
-        draggingBoxIdx--;
+        swapEffects(activeBoxIdx, activeBoxIdx - 1);
+        activeBoxIdx--;
         calculateTargetMidpoints();
     } else if (dragY > bottomTarget && bottomTarget > -1) {
-        swapEffects(draggingBoxIdx, draggingBoxIdx + 1);
-        draggingBoxIdx++;
+        swapEffects(activeBoxIdx, activeBoxIdx + 1);
+        activeBoxIdx++;
         calculateTargetMidpoints();
     }
 }
@@ -130,14 +166,14 @@ function reorderEffects() {
 }
 
 function calculateTargetMidpoints() {
-    if (draggingBoxIdx > 0) {
-        let topNode = effectList[draggingBoxIdx - 1].div;
+    if (activeBoxIdx > 0) {
+        let topNode = effectList[activeBoxIdx - 1].div;
         topTarget = topNode.offsetTop + topNode.offsetHeight * 0.5;
     } else {
         topTarget = -1;
     }
-    if (draggingBoxIdx < effectList.length - 1) {
-        let bottomNode = effectList[draggingBoxIdx + 1].div;
+    if (activeBoxIdx < effectList.length - 1) {
+        let bottomNode = effectList[activeBoxIdx + 1].div;
         bottomTarget = bottomNode.offsetTop;
     } else {
         bottomTarget = -1;

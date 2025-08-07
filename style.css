@@ -3,11 +3,10 @@
     --button-hover: #47b2f5;
     --panel-dark: #2a2d31;
     --panel-light: #474c53;
-    /*--dropdown-background: #829dad;
-    --dropdown-hover: #6e8794;
-    */
     --dropdown-background: #787f8a;
     --dropdown-hover: #808999;
+    --effect-title: #769aaf;
+    --effect-body: #8cacc2;
 }
 
 .hide {
@@ -200,7 +199,7 @@ html, body {
 }
 
 .effect-item {
-    background-color: #9db5c4;
+    background-color: var(--effect-body);
     box-shadow: 2px 4px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -222,9 +221,13 @@ html, body {
     padding-top: 5px;
     padding-bottom: 3px;
     font-size: 18px;
-    background-color: #829dad;
+    background-color: var(--effect-title);
     border-top-right-radius: 3px;
     border-top-left-radius: 3px;
+}
+
+.effect-disabled {
+    color: #610c05;
 }
 
 .value-slider {
@@ -279,6 +282,7 @@ html, body {
     padding: 0px 5px;
     margin-right: 5px;
     font-size: 18px;
+    color: #000000;
 }
 
 .effect-options-button:hover {

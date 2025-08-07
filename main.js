@@ -113,8 +113,10 @@ function processImage() {
 
     for (let i = 0; i < effectList.length; i++) {
         const effect = effectList[i];
-        effect.buffer.writeValues();
-        effect.pipeline.run(encoder, getBindGroup(), effect.buffer.bindGroup);
+        if (effect.enabled) {
+            effect.buffer.writeValues();
+            effect.pipeline.run(encoder, getBindGroup(), effect.buffer.bindGroup);
+        }
     }
 
     srgbPipeline.run(encoder, getBindGroup());
@@ -221,6 +223,7 @@ function addEffect(id) {
     if (effect.useColor) {
         effect.buffer.setColor(1, 1, 1);
     }
+    effect.enabled = true;
     effectList.push(effect);
     createEffectBox(effect);
     processImage();
