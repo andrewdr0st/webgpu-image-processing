@@ -7,6 +7,7 @@ let compTexture2;
 
 let processLayout;
 let valueLayout;
+let palleteBuffer;
 
 let initBG;
 let compBG1;
@@ -41,6 +42,23 @@ async function loadImage(path) {
 async function loadJSON(path) {
     const response = await fetch(path);
     return response.json();
+}
+
+async function loadHexPallete(f) {
+    let response = await fetch("palletes/" + f);
+    let hex = (await response.text()).split("\n");
+    let size = hex.length - 1;
+    const a = new Float32Array(size * 4);
+    for (let i = 0; i < size; i++) {
+        let c = hex[i].split("");
+        let cList = [];
+        for (let j = 0; j < 6; j += 2) {
+            let v = parseInt(c[j] + c[j + 1], 16);
+            cList.push(v / 255);
+        }
+        a.set(cList, i * 4);
+    }
+    return a;
 }
 
 async function setupGPUDevice() {
@@ -79,6 +97,10 @@ async function setupGPUDevice() {
                 binding: 0,
                 visibility: GPUShaderStage.COMPUTE,
                 buffer: {type: "uniform"}
+            }, {
+                binding: 1,
+                visibility: GPUShaderStage.COMPUTE,
+                buffer: {type: "uniform"}
             }
         ]
     });
@@ -86,6 +108,14 @@ async function setupGPUDevice() {
     const img = await loadImage("squirrel.jpg");
 
     createImgTextures(img);
+
+    const pallete = await loadHexPallete("illu32.hex");
+
+    palleteBuffer = device.createBuffer({
+        size: pallete.byteLength,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+    });
+    device.queue.writeBuffer(palleteBuffer, 0, pallete);
 
     allEffects = await loadJSON("effects.json");
     const pipelinePromises = [linearPipeline.buildPipeline(), srgbPipeline.buildPipeline(), oklabPipeline.buildPipeline(), oklchPipeline.buildPipeline()];

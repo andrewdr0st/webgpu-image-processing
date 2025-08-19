@@ -11,7 +11,10 @@ class EffectBuffer {
         });
         this.bindGroup = device.createBindGroup({
             layout: valueLayout,
-            entries: [{binding: 0, resource: {buffer: this.buffer}}]
+            entries: [
+                {binding: 0, resource: {buffer: this.buffer}},
+                {binding: 1, resource: {buffer: palleteBuffer}}
+            ]
         });
     }
 

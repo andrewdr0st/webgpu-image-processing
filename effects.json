@@ -117,5 +117,11 @@
         "maxValue": 5,
         "stepAmount": 1,
         "useColor": false
+    },
+    {
+        "name": "Posterize",
+        "shader": "posterize",
+        "useValue": false,
+        "useColor": false
     }
 ]
